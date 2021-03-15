@@ -18,11 +18,13 @@ Health. For this reason, we recommend that you use your organization's domain na
 
 Once this initial account is set up, you can use the API to create additional organizations and users.
 
-## Step 2: Request Your API Keys
+## Step 2: Request Your API Keys From Dock Health
 
 Dock Health authenticates your requests using your developer API keys, which consist of an `api_key`, `client_id` and a 
-`client_secret`. Contact Dock Health to request your keys. You will need to supply the **email address** of the account
-you created in Step 1.
+`client_secret`. 
+
+Email Dock Health at <mailto://support@dock.health> to request your keys.
+You will need to supply the **email address** of the account you created in Step 1.
 
 To protect your data, make sure to keep your API keys private -- do not share them via email or messaging, and do not 
 commit them to any source code repositories. Dock Health recommends creating `API_KEY`, `CLIENT_ID`, and`CLIENT_SECRET` 
@@ -138,6 +140,35 @@ Example Response:
 }
 ```
 
+## Step 5: Next Steps
+
+Congratulations! You should now be able to make full use of the Dock Health API in your own applications. 
+
+See the remainder of this README for more information on the data model, request scopes, request format, and errors.
+
+The Dock Health API Developer Guide (this document) and client examples are available at our public
+GitHub API repository (this repo): <https://github.com/DockHealth/dockhealth-api>.
+
+Please see the examples section of this repo for full working examples covering the full onboarding lifecycle!
+
+The Dock Health API reference is available in three formats - OpenAPI (yaml), Redoc, and Swagger:
+
+- DEVELOPMENT:
+  - OpenAPI: <https://partner-api-dev.dockhealth.app/api-docs>
+  - Redoc: <https://partner-api-dev.dockhealth.app/api-docs/redoc>
+  - Swagger: <https://partner-api-dev.dockhealth.app/api-docs/swagger-ui.html>
+- PRODUCTION:
+  - OpenAPI: <https://partner-api.dockhealth.app/api-docs>
+  - Redoc: <https://partner-api.dockhealth.app/api-docs/redoc>
+  - Swagger: <https://partner-api.dockhealth.app/api-docs/swagger-ui.html>
+  
+Finally, if you have any trouble, please don't hesitate to reach out for help. Either:
+
+1. Create an issue in this repo: <https://github.com/DockHealth/dockhealth-api/issues>.
+2. Email us at <mailto: support@dock.health>. 
+
+Thanks for using Dock Health!
+
 ## Dock Health API Data Model
 
 **TODO Add lists, groups, and templates.** 
@@ -206,16 +237,16 @@ NOTE: A user and org are for patient operations, and the user and patient must b
 
 Dock Health endpoints generally follow these usage conventions:
 
-### Get Lists of Entities: `GET /<version>/<entity>`
-`GET /v1/organization` returns a list of organizations for the `USER_ID` supplied in the request header:
-`GET /v1/user` returns a list of users for the `ORGANIZATION_ID` and `USER_ID` supplied in the request headers:
-
 ### Get Single Entities: `GET /<version>/<entity>/<entityIdentifier>`
 `GET /v1/user/160f9192-40c2-11ea-a4e8-124feabd863a` returns the user for the specified `userIdentifier`.
 
 NOTE that the `entity` is referred to in the **singular** even when getting a list:
 `GET /v1/user` returns a list of users.
 `GET /v1/user/someuseridentifier` returns a single user.
+
+### Search For Entities Matching the Given Parameters: `GET /<version>/<entity>?param1=&param2=`
+`GET /v1/organization` returns a list of organizations for the `USER_ID` supplied in the request header:
+`GET /v1/user` returns a list of users for the `ORGANIZATION_ID` and `USER_ID` supplied in the request headers:
 
 ### Create Entities: `POST /version/<entity>`
 `POST /v1/user` creates a new user.
@@ -228,6 +259,13 @@ NOTE that the `entity` is referred to in the **singular** even when getting a li
 
 ### Delete Entities: `DELETE /version/<entity>/<entityIdentifier>`
 `DELETE /v1/user/someuseridentifier` (soft) deletes an existing user.
+
+**IMPORTANT**: Currently, Dock Health ONLY supports soft-deletions! Any deleted item is actually still retrievable via
+the API, but its `active` attribute will be set to `false`. 
+
+To fetch only non-deleted (`active`) items from the API, use the `search` endpoints, supplying `active=true` as one
+of the search parameters. Alternatively, retrieve both `active` and `inactive` items from the API and filter any 
+inactive items from the returned results.
 
 ## Dock Health API Errors
 
@@ -272,8 +310,10 @@ Example Error Response:
 
 ## Additional Dock Health API Developer Info
 
-The Dock Health API Developer Guide (this document) and client libraries (coming soon!) are available at our public 
-GitHub API repository: <https://github.com/DockHealth/dockhealth-api>.
+The Dock Health API Developer Guide (this document) and client examples are available at our public
+GitHub API repository (this repo): <https://github.com/DockHealth/dockhealth-api>.
+
+Please see the examples section of this repo for full working examples covering the full onboarding lifecycle!
 
 The Dock Health API reference is available in three formats - OpenAPI (yaml), Redoc, and Swagger:
 
@@ -286,61 +326,10 @@ The Dock Health API reference is available in three formats - OpenAPI (yaml), Re
   - Redoc: <https://partner-api.dockhealth.app/api-docs/redoc>
   - Swagger: <https://partner-api.dockhealth.app/api-docs/swagger-ui.html>
 
-## Dock Health API Onboarding Worflow
+## Contact Us
 
-Once you have your developer account setup and are able to fetch your current developer info per the instructions above,
-feel free to follow these steps to build out some initial data in Dock and to better familiarize yourself with the API:
+If you have any trouble, please don't hesitate to reach out for help. Either:
 
-### Fetch your organizations
-```bash
-curl --request GET \
---url $API_URL/api/v1/organization \
---header 'x-api-key: ypAnaCur3laAOgrGNUFze5CT9pc3T0ch7rh8KOpl' \
---header 'x-user-id: ed6f063b-2ea8-49f2-a1f5-cfedd4d75837' \
---header 'Authorization: eyJraWQiOiJyYTAraGdJUlhDTEZJNlNKY0ladjNMdmVITUJoTDhGTGhOWEhLRWFCNlwvST0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2aHBvdGkzMWNpOWpmcGlzc2lmOXRrbHVsbiIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiZG9ja2hlYWx0aFwvdXNlci5hbGwucmVhZCIsImF1dGhfdGltZSI6MTYxNDYzNDQ2NywiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfMEU0Z0ltdktaIiwiZXhwIjoxNjE0NjM0NzY3LCJpYXQiOjE2MTQ2MzQ0NjcsInZlcnNpb24iOjIsImp0aSI6ImE2MWVhZjlhLTJiMDMtNDA2ZC1hMWIxLWM0YjE3YzdlZWI2NyIsImNsaWVudF9pZCI6IjZocG90aTMxY2k5amZwaXNzaWY5dGtsdWxuIn0.f2DnVKEPBrS9QhQHqnvoEIxQPiIa3YUMr_FaAnI5sYPpr2JVhBteKAmOnKBOKGjhESPMbaKv8aOvula8GG4A8sX6_vOIhv4yG3PhAU-_topsIZ7l598dAk2bFRBWaYgRbE1kTiOOPSGOHUwyMR8pzmaNCyZQHEEt1iatFQXUoFYtgefV3ah3FiHYNVXpZMlwMXOuQbt9OOKKx0m4ToSaryitoIZ3n4hXQ7ItfRShAez25szcRSW1OAwmw-qDoznmLW3J2TBAEW2d27Ij7arPYYHMXRFiU8d7FZjCJ61uNSlWpeEepQk0CkrjKwnF9wDbmKTiRwOccAMHxvnhArWgWA'
-```
-```json
-[
-  {
-    "organizationIdentifier": "6b2650ce-360f-4b97-8dd7-85024c754175",
-    "name": "Smith Practice P.C.",
-    "subscription": {
-      "subscriptionPlan": "Free 30 day trial",
-      "billingFrequency": "Monthly"
-    }
-  }
-]
-```
-
-### Create an organization
-
-TODO
-
-### Update an organization
-
-TODO
-
-### Fetch the users for an organization
-
-TODO
-
-### Create a user 
-
-TODO
-
-### Update a user
-
-TODO
-
-### Add a user to an organization
-
-TODO
-
-### Fetch the patients for an organization
-
-TODO
-
-### Create a patient 
-
-TODO
+1. Create an issue in this repo: <https://github.com/DockHealth/dockhealth-api/issues>.
+2. Email us at <mailto: support@dock.health>. 
 

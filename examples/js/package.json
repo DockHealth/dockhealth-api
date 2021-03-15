@@ -1,0 +1,25 @@
+{
+  "name": "dockhealth-api",
+  "repository": "https://github.com/DockHealth/dockhealth-api.git",
+  "version": "0.0.1-SNAPSHOT",
+  "description": "Dock Health API Javascript Examples.",
+  "author": "Dock Health",
+  "license": "UNLICENSED",
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^0.20.0",
+    "custom-env": "^2.0.1",
+    "jest": "^26.5.3",
+    "nanoid": "^3.1.16",
+    "superagent": "^6.1.0",
+    "supertest": "^5.0.0"
+  },
+  "devDependencies": {
+    "standard": "^16.0.2"
+  },
+  "scripts": {
+    "lint": "standard",
+    "lint-fix": "standard --fix",
+    "test:local": "NODE_ENV=local jest"
+  }
+}
