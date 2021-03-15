@@ -23,9 +23,35 @@ const apiUrl = process.env.API_URL
 const apiKey = process.env.API_KEY
 const clientId = process.env.CLIENT_ID
 const clientSecret = process.env.CLIENT_SECRET
+const domain = process.env.DOMAIN
+const email = process.env.EMAIL
 
 const auth = require('supertest')(authUrl)
 const { nanoid } = require('nanoid')
+
+const checkEnv = () => {
+  if (!authUrl) {
+    throw new Error('AUTH_URL is undefined!')
+  }
+  if (!apiUrl) {
+    throw new Error('API_URL is undefined!')
+  }
+  if (!apiKey) {
+    throw new Error('API_KEY is undefined!')
+  }
+  if (!clientId) {
+    throw new Error('CLIENT_ID is undefined!')
+  }
+  if (!clientSecret) {
+    throw new Error('CLIENT_SECRET is undefined!')
+  }
+  if (!domain) {
+    throw new Error('DOMAIN is undefined!')
+  }
+  if (!email) {
+    throw new Error('EMAIL is undefined!')
+  }
+}
 
 const devHeaders = (token) => {
   if (!token) {
@@ -37,42 +63,48 @@ const devHeaders = (token) => {
   return json
 }
 
-const userHeaders = (token, userIdentifier) => {
+const userHeaders = (token, userId) => {
   if (!token) {
     throw new Error('Token is undefined!')
   }
-  if (!userIdentifier) {
-    throw new Error('User identifier is undefined!')
+  if (!userId) {
+    throw new Error('User id is undefined!')
   }
   let json = {}
   json[HEADER_AUTHORIZATION] = token
   json[HEADER_API_KEY] = apiKey
-  json[HEADER_USER_ID] = userIdentifier
+  json[HEADER_USER_ID] = userId
   return json
 }
 
-const userAndOrgHeaders = (token, userIdentifier, organizationIdentifier) => {
+const userAndOrgHeaders = (token, userId, organizationId) => {
   if (!token) {
     throw new Error('Token is undefined!')
+  }
+  if (!userId) {
+    throw new Error('User id is undefined!')
+  }
+  if (!organizationId) {
+    throw new Error('Organization id is undefined!')
   }
   let json = {}
   json[HEADER_AUTHORIZATION] = token
   json[HEADER_API_KEY] = apiKey
-  json[HEADER_USER_ID] = userIdentifier
-  json[HEADER_ORGANIZATION_ID] = organizationIdentifier
+  json[HEADER_USER_ID] = userId
+  json[HEADER_ORGANIZATION_ID] = organizationId
   return json
 }
 
 const generateEmail = () => {
-  return (nanoid(GENERATED_ITEM_LENGTH) + '@apitest.com').toLowerCase()
+  return (nanoid(GENERATED_ITEM_LENGTH) + '@' + domain).toLowerCase()
 }
 
 const generateDomain = () => {
-  return (nanoid(GENERATED_ITEM_LENGTH) + '-apitest.com').toLowerCase()
+  return (nanoid(GENERATED_ITEM_LENGTH) + '.' + domain).toLowerCase()
 }
 
 const generateMrn = () => {
-  return (nanoid(GENERATED_ITEM_LENGTH)).toLowerCase()
+  return (nanoid(GENERATED_ITEM_LENGTH) + '-' + domain).toLowerCase()
 }
 
 const getAccessToken = async (scopes) => {
@@ -116,6 +148,9 @@ module.exports = {
   HEADER_USER_ID,
   HEADER_ORGANIZATION_ID,
   apiUrl,
+  domain,
+  email,
+  checkEnv,
   getAccessToken,
   devHeaders,
   userHeaders,

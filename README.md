@@ -68,7 +68,7 @@ curl --request POST \
 --data grant_type=client_credentials \
 --data client_id=6hpoti31ci9jfpissif9tkluln \
 --data client_secret=u5lo235n3ssp4im9qep06jjf096kueq9piopvi3a0322jsr9amo \
---data scope='dockhealth/system.developer.read dockhealth/system.developer.write'
+--data scope="dockhealth/system.developer.read dockhealth/system.developer.write"
 ```
 
 **IMPORTANT: Multiple scopes must be separated by a single space!**
@@ -119,8 +119,8 @@ Example Request:
 ```bash
 curl --request GET \
 --url $API_URL/api/v1/developer \
---header 'x-api-key: ypAnaCur3laAOgrGNUFze5CT9pc3T0ch7rh8KOpl' \
---header 'Authorization: eyJraWQiOiJyYTAraGdJUlhDTEZJNlNKY0ladjNMdmVITUJoTDhGTGhOWEhLRWFCNlwvST0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2aHBvdGkzMWNpOWpmcGlzc2lmOXRrbHVsbiIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiZG9ja2hlYWx0aFwvc3lzdGVtLmRldmVsb3Blci5yZWFkIiwiYXV0aF90aW1lIjoxNjE0NTU0OTMzLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV8wRTRnSW12S1oiLCJleHAiOjE2MTQ1NTUyMzMsImlhdCI6MTYxNDU1NDkzMywidmVyc2lvbiI6MiwianRpIjoiMjU3ZTRkZGYtNThmZi00MGVlLThiNWEtMzE1MjkxMGQ1NDQ4IiwiY2xpZW50X2lkIjoiNmhwb3RpMzFjaTlqZnBpc3NpZjl0a2x1bG4ifQ.XRUBBdgGOCRcy4WW4mjEaGcc4W9S-JV0AbuKmM2PlQvqopmzizETN_NSz-3ScLbfyd_g5JO0Jfr2eimnMQSeYDU3sVhSs1CNiT8VhEps_9BVwvthQtFdFAnjzGXM7FSsSp-7amzb4Q29KtlIP3tUsgM6mmgha4c3fcRBmP1RDw2op6NP5sUrQRamQz7gz-PLqjEUJS1fSJLCR1Wcp05LaHIgaOlhCfDMzLBTV7UXC9WqmpQ6yFWYZuVmwOq8rwCrEeqXZ0oVvarDuwpx1pWVOUAUKq4giEj_hy8CjzdXkqyfyEt1-BZe93gFWuqgAZVOrVp4OgEqUp8KX6SDnfoh3A'
+--header "x-api-key: ypAnaCur3laAOgrGNUFze5CT9pc3T0ch7rh8KOpl" \
+--header "Authorization: eyJraWQiOiJyYTAraGdJUlhDTEZJNlNKY0ladjNMdmVITUJoTDhGTGhOWEhLRWFCNlwvST0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2aHBvdGkzMWNpOWpmcGlzc2lmOXRrbHVsbiIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiZG9ja2hlYWx0aFwvc3lzdGVtLmRldmVsb3Blci5yZWFkIiwiYXV0aF90aW1lIjoxNjE0NTU0OTMzLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV8wRTRnSW12S1oiLCJleHAiOjE2MTQ1NTUyMzMsImlhdCI6MTYxNDU1NDkzMywidmVyc2lvbiI6MiwianRpIjoiMjU3ZTRkZGYtNThmZi00MGVlLThiNWEtMzE1MjkxMGQ1NDQ4IiwiY2xpZW50X2lkIjoiNmhwb3RpMzFjaTlqZnBpc3NpZjl0a2x1bG4ifQ.XRUBBdgGOCRcy4WW4mjEaGcc4W9S-JV0AbuKmM2PlQvqopmzizETN_NSz-3ScLbfyd_g5JO0Jfr2eimnMQSeYDU3sVhSs1CNiT8VhEps_9BVwvthQtFdFAnjzGXM7FSsSp-7amzb4Q29KtlIP3tUsgM6mmgha4c3fcRBmP1RDw2op6NP5sUrQRamQz7gz-PLqjEUJS1fSJLCR1Wcp05LaHIgaOlhCfDMzLBTV7UXC9WqmpQ6yFWYZuVmwOq8rwCrEeqXZ0oVvarDuwpx1pWVOUAUKq4giEj_hy8CjzdXkqyfyEt1-BZe93gFWuqgAZVOrVp4OgEqUp8KX6SDnfoh3A"
 ```
 
 Example Response:
@@ -165,24 +165,24 @@ The Dock Health API reference is available in three formats - OpenAPI (yaml), Re
 Finally, if you have any trouble, please don't hesitate to reach out for help. Either:
 
 1. Create an issue in this repo: <https://github.com/DockHealth/dockhealth-api/issues>.
-2. Email us at <mailto: support@dock.health>. 
+2. Email us at <mailto://support@dock.health>. 
 
 Thanks for using Dock Health!
 
 ## Dock Health API Data Model
 
-**TODO Add lists, groups, and templates.** 
-
 - A single `Developer` has one or more `Organizations`.
   - A single `Organization` has one or more `Patients`.
     - A single `Patient` has one or more `Notes`.
   - A single `Organization` has one or more `Users`.
-    - A single `User` has one or more `Tasks`.
-      - A single `Task` has zero or one `Patients`.
-      - A single `Task` has zero or more `SubTasks`.
-      - A single `Task` or `SubTask` has zero or more `Assignees`, which are existing `Users`.
-      - A single `Task` or `SubTask` has zero or more `Attachments`.
-      - A single `Task` or `SubTask` has zero or more `Comments`.
+  - A single `Organization` has one or more `Lists`.
+    - A single `List` has one or more `Groups`.
+      - A single `Group` has one or more `Tasks`.
+        - A single `Task` has zero or more `SubTasks`.
+          - A single `Task` has zero or one existing `Patients`.
+          - A single `Task` or `SubTask` has zero or more `Assignees`, which are existing `Users`.
+          - A single `Task` or `SubTask` has zero or more `Attachments`.
+          - A single `Task` or `SubTask` has zero or more `Comments`.
   
 ## Request Scopes
 
@@ -264,8 +264,8 @@ NOTE that the `entity` is referred to in the **singular** even when getting a li
 the API, but its `active` attribute will be set to `false`. 
 
 To fetch only non-deleted (`active`) items from the API, use the `search` endpoints, supplying `active=true` as one
-of the search parameters. Alternatively, retrieve both `active` and `inactive` items from the API and filter any 
-inactive items from the returned results.
+of the search parameters. Alternatively, retrieve items from the API and filter any inactive items from the returned 
+results.
 
 ## Dock Health API Errors
 
@@ -300,11 +300,11 @@ Example Error Response:
 
 ```json
 {
-  timestamp: '2021-03-01T19:45:25.064Z',
-  status: 403,
-  error: 'Forbidden',
-  message: 'HeyDocAccessDeniedException: Not authorized to access patient note: 51b95ccd-4bbe-11ea-a4e8-124feabd863a',
-  path: '/api/v1/patient/b7b51675-316d-4f60-a8b2-93b19f93129b/note/51b95ccd-4bbe-11ea-a4e8-124feabd863a'
+  "timestamp": "2021-03-01T19:45:25.064Z",
+  "status": 403,
+  "error": "Forbidden",
+  "message": "HeyDocAccessDeniedException: Not authorized to access patient note: 51b95ccd-4bbe-11ea-a4e8-124feabd863a",
+  "path": "/api/v1/patient/b7b51675-316d-4f60-a8b2-93b19f93129b/note/51b95ccd-4bbe-11ea-a4e8-124feabd863a"
 }
 ```
 

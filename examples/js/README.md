@@ -7,11 +7,14 @@ demonstration of how to use the Dock Health API in your JS codebase.
 
 The examples require you to create a Dock Health user account at:<https://app.dock.health>. 
 Creation of the account will require a **business email address**, **password**, **mobile phone** for two-factor 
-authentication via SMS, and your **organization name**.
+authentication via SMS, and your **organization's domain name**.
 
 This account will function as your initial account owner, so you should use an email address and phone appropriate for
 administrative accounts. The organization name can be any name of your choosing but must be unique across all of Dock
 Health. For this reason, we recommend that you use your organization's domain name.
+
+**IMPORTANT**: Make a note of the `domain` and `email` address used to create your account in Dock Health.
+**IMPORTANT**: You will need them to run these examples!
 
 Once this initial account is set up, you can use the API to create additional organizations and users.
 
@@ -36,13 +39,19 @@ If you do, make sure to add any `.env` files to your `.gitignore` to prevent pus
 
 1. Install Node.js: <https://nodejs.org>
    
-2. Clone the Dock Health API repository to your development environment:
+2. Install the Jest test framework (<https://jestjs.io>) as a global Node dependency:
+
+```shell
+npm install --global jest
+```   
+
+3. Clone the Dock Health API repository to your development environment:
 
 ```shell
 git clone git@github.com:DockHealth/dockhealth-api.git
 ```
 
-3. Run `npm install` to install the dependencies listed in `package.json`.
+4. Run `npm install` to install the dependencies listed in `package.json`.
 
 ## Step 3. Setup Your Environment Variables
 
@@ -51,10 +60,11 @@ The examples require the following environment variables to be set:
 ```shell
 AUTH_URL = https://dock-health-dev.auth.us-east-1.amazoncognito.com
 API_URL = https://partner-api-dev.dockhealth.app/api/v1
-API_KEY = 'The API_KEY you received from Dock Health'
-CLIENT_ID = 'The CLIENT_ID you received from Dock Health'
-CLIENT_SECRET = 'The CLIENT_SECRET you received from Dock Health'
-
+API_KEY = "The API_KEY you received from Dock Health"
+CLIENT_ID = "The CLIENT_ID you received from Dock Health"
+CLIENT_SECRET = "The CLIENT_SECRET you received from Dock Health"
+DOMAIN = "The domain name you used when creating your account and initial organization in the Dock Health app."
+EMAIL = "The email address you used when creating your account and first user in the Dock Health app."
 ```
 
 You can set the env vars directly in your shell, or you can create an environment file on disk to contain those values. 
@@ -69,8 +79,11 @@ in this repo to see how to exclude this file!
 
 ## Step 3. Run the Examples
 
+CD to the `examples/js` directory and run:
 
-
+```shell
+jest
+```
 
 ## Additional Dock Health API Developer Info
 
