@@ -41,11 +41,11 @@ environment for your live application. To make changing environments easier, we 
 environment variables:
 
 - `AUTH_URL` should be set to the Dock Health Authorization server URL appropriate for your environment:
-  - DEVELOPMENT: <https://dock-health-dev.auth.us-east-1.amazoncognito.com>
-  - PRODUCTION: <https://dock-health.auth.us-east-1.amazoncognito.com>
+  - DEVELOPMENT: <https://partner-auth-dev.dockhealth.app>
+  - PRODUCTION: <https://partner-auth.dock.health>
 - `API_URL` should be set to the Dock Health API server URL appropriate for your environment:
   - DEVELOPMENT: <https://partner-api-dev.dockhealth.app>
-  - PRODUCTION: <https://partner-api.dockhealth.app>
+  - PRODUCTION: <https://partner-api.dock.health>
 
 ## Step 4: Request an Authorization Token
 
@@ -109,9 +109,9 @@ each endpoint. The Dock Health API reference is available in three formats - Ope
   - Redoc: <https://partner-api-dev.dockhealth.app/api-docs/redoc>
   - Swagger: <https://partner-api-dev.dockhealth.app/api-docs/swagger-ui.html>
 - PRODUCTION:
-  - OpenAPI: <https://partner-api.dockhealth.app/api-docs>
-  - Redoc: <https://partner-api.dockhealth.app/api-docs/redoc>
-  - Swagger: <https://partner-api.dockhealth.app/api-docs/swagger-ui.html>
+  - OpenAPI: <https://partner-api.dock.health/api-docs>
+  - Redoc: <https://partner-api.dock.health/api-docs/redoc>
+  - Swagger: <https://partner-api.dock.health/api-docs/swagger-ui.html>
 
 For example, to request your Developer account info, you must request `dockhealth/system.developer.read` scope when
 making your Authorization request, and supply the returned `access_token` as the authorization header, along with your
@@ -161,9 +161,9 @@ The Dock Health API reference is available in three formats - OpenAPI (yaml), Re
   - Redoc: <https://partner-api-dev.dockhealth.app/api-docs/redoc>
   - Swagger: <https://partner-api-dev.dockhealth.app/api-docs/swagger-ui.html>
 - PRODUCTION:
-  - OpenAPI: <https://partner-api.dockhealth.app/api-docs>
-  - Redoc: <https://partner-api.dockhealth.app/api-docs/redoc>
-  - Swagger: <https://partner-api.dockhealth.app/api-docs/swagger-ui.html>
+  - OpenAPI: <https://partner-api.dock.health/api-docs>
+  - Redoc: <https://partner-api.dock.health/api-docs/redoc>
+  - Swagger: <https://partner-api.dock.health/api-docs/swagger-ui.html>
   
 Finally, if you have any trouble, please don't hesitate to reach out for help. Either:
 
@@ -325,9 +325,9 @@ The Dock Health API reference is available in three formats - OpenAPI (yaml), Re
   - Redoc: <https://partner-api-dev.dockhealth.app/api-docs/redoc>
   - Swagger: <https://partner-api-dev.dockhealth.app/api-docs/swagger-ui.html>
 - PRODUCTION:
-  - OpenAPI: <https://partner-api.dockhealth.app/api-docs>
-  - Redoc: <https://partner-api.dockhealth.app/api-docs/redoc>
-  - Swagger: <https://partner-api.dockhealth.app/api-docs/swagger-ui.html>
+  - OpenAPI: <https://partner-api.dock.health/api-docs>
+  - Redoc: <https://partner-api.dock.health/api-docs/redoc>
+  - Swagger: <https://partner-api.dock.health/api-docs/swagger-ui.html>
 
 ## Contact Us
 
