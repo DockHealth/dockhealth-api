@@ -7,8 +7,10 @@
   "license": "UNLICENSED",
   "main": "index.js",
   "dependencies": {
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
+    "crypto-js": "^4.0.0",
     "custom-env": "^2.0.1",
+    "express": "^4.17.1",
     "jest": "^26.5.3",
     "nanoid": "^3.1.16",
     "superagent": "^6.1.0",
