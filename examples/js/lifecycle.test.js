@@ -7,7 +7,6 @@ const shared = require('./shared')
 const request = require('supertest')(shared.apiUrl)
 
 test('Dock Health API Lifecycle Test.', async () => {
-
   // This test demonstrates the full Dock Health onboarding lifecycle.
 
   console.debug('Running Dock Health API Lifecycle Test.')
@@ -70,9 +69,9 @@ test('Dock Health API Lifecycle Test.', async () => {
         console.debug(res.body)
         const organization = res.body.find(org => org.domain === shared.domain)
         if (!organization) {
-          throw Error("Organization not found: " + shared.domain)
+          throw Error('Organization not found: ' + shared.domain)
         }
-        console.debug("Located organization: " + organization.domain)
+        console.debug('Located organization: ' + organization.domain)
         return organization.id
       })
 
@@ -98,9 +97,9 @@ test('Dock Health API Lifecycle Test.', async () => {
       console.debug(res.body)
       const user = res.body.find(u => u.email === shared.email)
       if (!user) {
-        throw Error("User not found: " + shared.email)
+        throw Error('User not found: ' + shared.email)
       }
-      console.debug("Located user: " + user.email)
+      console.debug('Located user: ' + user.email)
       return user.id
     })
 
@@ -120,7 +119,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   // To make it easier to guarantee a unique domain name, we will generate one here based on your domain.
   // In real life, you must supply a unique domain name.
 
-  let domain = shared.generateDomain()
+  const domain = shared.generateDomain()
 
   // Create a new organization and store the returned id for later use.
 
@@ -143,7 +142,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   token = await shared.getAccessToken(['dockhealth/user.all.write'])
   headers = shared.userHeaders(token, userId)
 
-  let newName = 'new-org-updated'
+  const newName = 'new-org-updated'
   await request
     .patch('/api/v1/organization/' + newOrgId)
     .send({ name: newName })
@@ -182,7 +181,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   token = await shared.getAccessToken(['dockhealth/user.all.write'])
   headers = shared.userAndOrgHeaders(token, userId, orgId)
 
-  let newUserEmail = shared.generateEmail()
+  const newUserEmail = shared.generateEmail()
   const newUserId =
     await request
       .post('/api/v1/user')
@@ -262,7 +261,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   token = await shared.getAccessToken(['dockhealth/patient.all.write'])
   headers = shared.userAndOrgHeaders(token, newUserId, newOrgId)
 
-  let newPatientMrn = shared.generateMrn()
+  const newPatientMrn = shared.generateMrn()
   const newPatientId =
     await request
       .post('/api/v1/patient')
@@ -297,7 +296,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   token = await shared.getAccessToken(['dockhealth/patient.all.write'])
   headers = shared.userAndOrgHeaders(token, newUserId, newOrgId)
 
-  let newPatientNote = 'This is a new note for patient: ' + newPatientMrn
+  const newPatientNote = 'This is a new note for patient: ' + newPatientMrn
   const newPatientNoteId =
     await request
       .post('/api/v1/patient/note')
@@ -326,9 +325,9 @@ test('Dock Health API Lifecycle Test.', async () => {
       console.debug(res.body)
       const note = res.body.find(n => n.id === newPatientNoteId)
       if (!note) {
-        throw Error("Patient note not found.")
+        throw Error('Patient note not found.')
       }
-      console.debug("Located patient note: " + note.description)
+      console.debug('Located patient note: ' + note.description)
     })
 
   // Now, delete everything we just created.
@@ -449,12 +448,12 @@ test('Dock Health API Lifecycle Test.', async () => {
           .delete('/api/v1/organization/' + newOrgId + '/user/' + user.id)
           .set(headers)
           .expect(200)
-          .then(res => {
+          .then(() => {
             console.debug('Removed user from (new) organization: ' + user.id)
             return user
           })
       } else {
-        return null;
+        return null
       }
     })
 
@@ -483,4 +482,3 @@ test('Dock Health API Lifecycle Test.', async () => {
 
   console.debug('Finished Dock Health API Lifecycle Test.')
 })
-
