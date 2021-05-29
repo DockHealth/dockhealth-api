@@ -19,13 +19,10 @@
 
   To make that endpoint available publicly, we recommend that you create a free ngrok account: <https://ngrok.com>.
   ngrok is a service that proxies a publicly-routable URL to an endpoint running locally in your environment.
-
-  Once ngrok is setup in your local environment, set `CALLBACK_PROXY_URL` to the **HTTPS** URL created for you by ngrok.
-
-  Once ngrok is running and `CALLBACK_PROXY_URL` is set, you can run the webhooks example.
 */
 
 const shared = require('./shared')
+const ngrok = require('ngrok')
 const request = require('supertest')(shared.apiUrl)
 
 beforeAll(() => {
@@ -60,8 +57,14 @@ test('Authorize Webhook', async () => {
   let headers = shared.devHeaders(token)
   let events = ['ORGANIZATION_CREATED']
 
-  // `CALLBACK_PROXY_URL` MUST be set to the HTTPS URL created for you by ngrok, and ngrok MUST be running locally!
-  const url = shared.callbackProxyUrl
+  // Setup ngrok to proxy to our local server on port 3000.
+  const ngrokOptions = {
+    authtoken: shared.ngrokAuthtoken,
+    proto: 'http',
+    addr: Number(shared.callbackLocalPort)
+  }
+  const url = await ngrok.connect(ngrokOptions)
+  console.debug('Webhook URL: ' + url)
 
   const id = await request
     .post('/api/v1/developer/webhook')
@@ -136,6 +139,9 @@ test('Authorize Webhook', async () => {
       console.debug(JSON.stringify(res.body, null, 2))
       expect(res.body.id).toEqual(id)
     })
+
+  // Disconnect the ngrok proxy.
+  await ngrok.disconnect()
 
   // Stop our one-shot express.js REST server.
   shared.stopServer()

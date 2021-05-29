@@ -6,7 +6,7 @@
 // Must add to prevent CORS error when axios unwinds error response in Jest tests.
 global.XMLHttpRequest = undefined
 
-jest.setTimeout(60000) // 60 secs.
+jest.setTimeout(360000) // 360 secs.
 
 if (process.env.NODE_ENV !== 'production') {
   require('custom-env').env(process.env.NODE_ENV)
@@ -27,20 +27,22 @@ const domain = process.env.DOMAIN
 const email = process.env.EMAIL
 
 // NOTE: Use ngrok to proxy calls from a well-known domain and port to localhost.
-// Set CALLBACK_PROXY_URL in your environment to your ngrok proxy url.
 // Set CALLBACK_LOCAL_PORT in your environment to the port of
 // your express instance setup in shared.js (default is 3000).
 // See: https://ngrok.com
-const callbackProxyUrl = process.env.CALLBACK_PROXY_URL
 const callbackLocalPort = process.env.CALLBACK_LOCAL_PORT
+const ngrokAuthtoken = process.env.NGROK_AUTHTOKEN
 
+const _ = require('lodash')
 const auth = require('supertest')(authUrl)
-const { nanoid } = require('nanoid')
 const crypto = require('crypto')
+const express = require('express')
+const { nanoid } = require('nanoid')
 
 let server = null
 let serverSecret = null
-const app = require('express')()
+const app = express()
+app.use(express.json())
 
 const checkEnv = () => {
   if (!authUrl) {
@@ -64,11 +66,11 @@ const checkEnv = () => {
   if (!email) {
     throw new Error('EMAIL is undefined!')
   }
-  if (!callbackProxyUrl) {
-    throw new Error('CALLBACK_PROXY_URL is undefined!')
-  }
   if (!callbackLocalPort) {
     throw new Error('CALLBACK_LOCAL_PORT is undefined!')
+  }
+  if (!ngrokAuthtoken) {
+    throw new Error('NGROK_AUTHTOKEN is undefined!')
   }
 }
 
@@ -82,7 +84,9 @@ const startServer = (secret) => {
 
 // Stop the REST server.
 const stopServer = () => {
-  server.close()
+  if (server) {
+    server.close()
+  }
   console.log('Webhook callback server stopped')
   serverSecret = null
 }
@@ -102,6 +106,77 @@ app.get('/*', async (req, res) => {
   }
   console.log('Returning signed message digest: ' + signed)
   return res.status(200).send({ digest: signed })
+})
+
+app.post('/*', async (req, res) => {
+  try {
+    if (!req.headers) {
+      console.debug('Webhook called with empty headers!')
+      return res.status(400)
+    }
+    const headers = req.headers
+    console.debug(`Webhook headers: ${JSON.stringify(headers)}.`)
+
+    if (!req.body) {
+      console.debug('Webhook called with empty event!')
+      return res.status(400)
+    }
+    const event = req.body
+    console.debug('Webhook event:')
+    console.debug(event)
+
+    // IMPORTANT: HTTP headers are case-insensitive!
+    const lowered = _.mapKeys(headers, (v, k) => k.toLowerCase())
+    const header = lowered['x-dock-signature-256']
+    if (!header) {
+      console.error('X-Dock-Signature-256 header missing.')
+      return res.status(500)
+    }
+
+    const elems = header.split(',')
+    if (elems.length < 2) {
+      console.error('Malformed X-Dock-Signature-256 header.')
+      return res.status(400)
+    }
+
+    const tsElem = elems[0].split('=')
+    if (tsElem.length < 2) {
+      console.error('Malformed timestamp header element.')
+      return res.status(400)
+    }
+
+    const signatureElem = elems[1].split('=')
+    if (signatureElem.length < 2) {
+      console.error('Malformed signature header element.')
+      return res.status(400)
+    }
+
+    const ts = tsElem[1]
+    if (!ts) {
+      console.error('Missing timestamp.')
+      return res.status(400)
+    }
+
+    const buffer = JSON.stringify(event)
+    const signature = signatureElem[1]
+    const verificationSignature = await crypto.createHmac('sha256', serverSecret).update(buffer).digest('hex')
+    if (!verificationSignature) {
+      console.error('Unable to create verification signature!')
+      return res.status(500)
+    }
+
+    if (signature !== verificationSignature) {
+      console.error('Signature invalid.')
+      return res.status(400)
+    }
+    console.debug('Signature valid.')
+
+    console.debug('Successfully processed event.')
+    return res.status(200).send({ })
+  } catch (error) {
+    console.error(`Error processing event: ${error.message}.`)
+    return res.status(500)
+  }
 })
 
 const devHeaders = (token) => {
@@ -218,7 +293,7 @@ module.exports = {
   HEADER_USER_ID,
   apiUrl,
   callbackLocalPort,
-  callbackProxyUrl,
+  ngrokAuthtoken,
   checkEnv,
   devHeaders,
   domain,
