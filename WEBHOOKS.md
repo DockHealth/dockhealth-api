@@ -88,7 +88,7 @@ See the `Authentication` section for more information about endpoint verificatio
 NOTE: Dock Health will allow more than one webhook to receive a given event. All verified, enabled, webhooks configured
 to receive a given event will receive that event. 
 
-### `PUT /api/v1/developer/webhook{id}`
+### `PUT /api/v1/developer/webhook/{id}`
 
 Updates the webhook for the specified id.
 
@@ -103,16 +103,6 @@ All updates, including enabling/disabling a webhook, will trigger a re-verificat
 Deletes the webhook for the specified id.
 
 This endpoint requires the `dockhealth/system.developer.write` scope.
-
-### `POST /api/v1/developer/webhook/{id}/test`
-
-Sends test messages to the webhook IF the webhook is both verified and enabled.
-
-This endpoint requires the `dockhealth/system.developer.write` scope.
-
-Appropriate errors will be returned for unverified or non-enabled endpoints.
-
-IMPORTANT: A single event for EACH registered event type will be sent to the webhook.
 
 ### `GET /api/v1/developer/webhook` 
 
@@ -138,7 +128,7 @@ Webhook authentication happens in two ways:
    - The developer creates an HMAC hex digest signature of a SHA-256 hash of the message. 
      - The signature is created with a key set to the secret that was sent in the initial POST or PUT request, 
        and a message set to the message sent by Dock to the webhook. 
-     - The webhook responds with a 200 and a response body containing a single attribute, digest, set to the digest.
+     - The webhook responds with a `200` and a response body containing a single attribute, digest, set to the digest.
        - Example: `{ “digest”: “eyJraWQiOiJyYTAraGdJUlhDTEZJNlNKY0ladjNMdmVITUJoTDhGTGhO“ }`
   - Dock attempts to verify the signature. 
     - If it is correct, Dock sets the endpoint `verified` flag to true. Notifications will be delivered to this endpoint. 
@@ -152,7 +142,9 @@ Webhook authentication happens in two ways:
    - The hash signature begins after the scheme, `v1=`, and is an HMAC hex digest signature 
      of a SHA-256 hash of the entire notification payload (JSON body), using the webhook’s `secret` as the key. 
    - The developer must split the header on the commas (,) and verify the signature by constructing 
-     their own signature following the same rules and confirming that it matches the signature sent by Dock Health. 
+     their own signature following the same rules and confirming that it matches the signature sent by Dock Health.
+   - IMPORTANT: HTTP headers are case-insensitive! 
+     You should do a case-insensitive match when looking for the Dock (and any other) headers!
      
 Example (real header will not include linebreaks):
 
@@ -167,6 +159,8 @@ To verify the signature, follow these steps:
 - Create a SHA-256 hash of the entire notification payload (JSON body), using the webhook's `secret` as the key.
 - Create an HMAC hex digest of the hash.
 - Compare the digest against the digest sent by Dock Health in the header of the notification (`v1=<digest>`).
+- IMPORTANT: HTTP headers are case-insensitive!
+  You should do a case-insensitive match when looking for the Dock (and any other) headers!
 
 ## Event Ordering
 
@@ -194,10 +188,20 @@ Developers can pull events via the following Dock Health API endpoints:
 
 These requests all require the `dockhealth/system.developer.read` scope.
 
-- `GET /api/v1/developer/event` returns all events for the given developer account matching the provided search criteria. 
-  - At present the search criteria is limited to a range of event creation timestamps.
-- `GET /api/v1/developer/event/{id}` returns the event for the specified event identifier.
-- `GET /api/v1/developer/event/{id}/history` returns the event delivery history for the specified event identifier.
+- `GET /api/v1/developer/event` returns all events for the given developer account matching the provided search criteria.
+  - This endpoint requires one of two different query strings:
+    - To return a single event: 
+      - `/api/v1/developer/event?organization={organizationIdentifier}&event={eventIdentifier}`
+    - To return a time-based range of events for a given organization:
+        - `/api/v1/developer/event?organization={organizationIdentifier}&startTs={startTs}&endTs={endTs}`
+        - Timestamps must be in this format and are assumed to be UTC: `yyyy-MM-dd HH:mm:ss`
+- `GET /api/v1/developer/event/delivery` returns the event delivery history matching the provided search criteria.
+    - This endpoint requires one of two different query strings:
+        - To return the event delivery history for single event:
+            - `/api/v1/developer/event/delivery?organization={organizationIdentifier}&event={eventIdentifier}`
+        - To return a time-based range of event delivery history for a given organization:
+            - `/api/v1/developer/event?organization={organizationIdentifier}&startTs={startTs}&endTs={endTs}`
+            - Timestamps must be in this format and are assumed to be UTC: `yyyy-MM-dd HH:mm:ss`
 
 ## Next Steps
 
