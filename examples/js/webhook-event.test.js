@@ -3,18 +3,22 @@
 /* Needed for standard.js to not complain about Jest global namespace functions. */
 /* eslint-env jest */
 
+/*
+  The webhook events example requires additional setup, and an overview of the authorization process.
+  Please see `WEBHOOKS.md` for more information on the webhook concepts.
+  Please complete the `webhook.test.js` example before proceeding to this example.
+*/
+
 const ngrok = require('ngrok')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
+dayjs.extend(utc)
 const { customAlphabet: custom } = require('nanoid')
 
 const shared = require('./shared')
 const request = require('supertest')(shared.apiUrl)
 
 const secretGen = custom('abcdefghijklmnopqrstuvwxyz', 36)
-
-dayjs.extend(utc)
-const dateTimeFormat = 'YYYY-MM-DD HH:mm:ss'
 
 beforeAll(() => {
   // Make sure all our env vars are set.
@@ -24,8 +28,8 @@ beforeAll(() => {
 test('get events range', async () => {
   const organizationIdentifier = await getDefaultOrganizationIdentifier()
 
-  const end = dayjs().utc().format(dateTimeFormat)
-  const start = dayjs().utc().subtract(1, 'day').format(dateTimeFormat)
+  const end = dayjs().utc().toISOString()
+  const start = dayjs().utc().subtract(1, 'day').toISOString()
   const events = await getEventsRange(organizationIdentifier, start, end)
   console.debug(JSON.stringify(events))
   expect(events.length).toBeGreaterThan(0)
@@ -34,8 +38,8 @@ test('get events range', async () => {
 test('get event delivery range', async () => {
   const organizationIdentifier = await getDefaultOrganizationIdentifier()
 
-  const end = dayjs().utc().format(dateTimeFormat)
-  const start = dayjs().utc().subtract(1, 'day').format(dateTimeFormat)
+  const end = dayjs().utc().toISOString()
+  const start = dayjs().utc().subtract(1, 'day').toISOString()
   const attempts = await getEventDeliveryAttemptsRange(organizationIdentifier, start, end)
   console.debug(JSON.stringify(attempts))
   expect(attempts.length).toBeGreaterThan(0)
@@ -51,14 +55,11 @@ test('lifecycle', async () => {
 
     // Delete any existing webhooks, just to keep things manageable.
     const existing = await getWebhooks()
-    expect(existing).not.toBeUndefined()
     await deleteWebhooks(existing)
 
-    // See how many events we already have.
-    let endTs = dayjs().utc().format(dateTimeFormat)
-    const startTs = dayjs().utc().subtract(1, 'day').format(dateTimeFormat)
-    const beforeEvents = await getEventsRange(organizationIdentifier, startTs, endTs)
-    console.debug(`BEFORE: ${beforeEvents.length} events: ${JSON.stringify(beforeEvents)}.`)
+    // See how many events and event delivery attempts we already have.
+    const beforeEvents = await getTodayEvents(organizationIdentifier)
+    const beforeAttempts = await getTodayAttempts(organizationIdentifier)
 
     // Start our server listening through an ngrok proxy.
     const ngrokOptions = {
@@ -72,11 +73,12 @@ test('lifecycle', async () => {
     await shared.startServer(webhookSecret)
 
     // Create a new webhook pointing to our ngrok proxy.
-    const webhook = await createWebhook(webhookUrl, webhookSecret, ['ORGANIZATION_UPDATED'])
+    const eventTypes = ['UPDATE_ORGANIZATION', 'CREATE_USER', 'UPDATE_USER', 'DELETE_USER']
+    const webhook = await createWebhook(webhookUrl, webhookSecret, eventTypes)
     expect(webhook.url).toEqual(webhookUrl)
     expect(webhook.secret).toEqual(webhookSecret)
 
-    // Generate a new event.
+    // Update our organization and generate a new event.
     const updatedOrganization = await updateOrganization(organizationIdentifier, userIdentifier)
     console.debug('UPDATED ORGANIZATION: ' + JSON.stringify(updatedOrganization))
 
@@ -84,17 +86,25 @@ test('lifecycle', async () => {
     // and the results to be stored.
     await shared.sleep(5000)
 
-    // See that we have one more event than before.
-    endTs = endTs = dayjs().utc().format(dateTimeFormat)
-    const afterEvents = await getEventsRange(organizationIdentifier, startTs, endTs)
-    console.debug(`AFTER: ${afterEvents.length} events: ${JSON.stringify(afterEvents)}.`)
+    // See that we have one more event and event delivery attempts than before.
+    let afterEvents = await getTodayEvents(organizationIdentifier)
     expect(afterEvents.length).toBeGreaterThan(beforeEvents.length)
+    let afterAttempts = await getTodayAttempts(organizationIdentifier)
+    expect(afterAttempts.length).toBeGreaterThan(beforeAttempts.length)
 
-    // Confirm event delivery for the new event.
-    const newEvent = afterEvents[afterEvents.length - 1]
-    const attempts = await getEventDeliveryAttempts(organizationIdentifier, newEvent.eventIdentifier)
-    expect(attempts.length).toBeGreaterThan(0)
-    expect(attempts[0].eventIdentifier).toEqual(newEvent.eventIdentifier)
+    // Create a new user and generate a new event.
+    const newUser = await createUser(organizationIdentifier, userIdentifier)
+    console.debug('CREATED USER: ' + JSON.stringify(newUser))
+
+    // Sleep a little to give the webhook time to be called,
+    // and the results to be stored.
+    await shared.sleep(5000)
+
+    // See that we have one more event and event delivery attempts than before.
+    afterEvents = await getTodayEvents(organizationIdentifier)
+    expect(afterEvents.length).toBeGreaterThan(beforeEvents.length)
+    afterAttempts = await getTodayAttempts(organizationIdentifier)
+    expect(afterAttempts.length).toBeGreaterThan(beforeAttempts.length)
   } catch (error) {
     console.error('Error: ' + error.message)
     throw error
@@ -104,6 +114,29 @@ test('lifecycle', async () => {
     await shared.stopServer()
   }
 })
+
+const getTodayEvents = async (organizationIdentifier) => {
+  const endTs = dayjs().utc().toISOString()
+  const startTs = dayjs().utc().subtract(1, 'day').toISOString()
+  const events = await getEventsRange(organizationIdentifier, startTs, endTs)
+  console.debug(`EVENTS (${events.length}): ${JSON.stringify(events)}.`)
+  return events
+}
+
+const getTodayAttempts = async (organizationIdentifier) => {
+  const endTs = dayjs().utc().toISOString()
+  const startTs = dayjs().utc().subtract(1, 'day').toISOString()
+  const events = await getEventDeliveryAttemptsRange(organizationIdentifier, startTs, endTs)
+  console.debug(`ATTEMPTS (${events.length}): ${JSON.stringify(events)}.`)
+  return events
+}
+
+const confirmEventDelivery = async (organizationIdentifier, events) => {
+  const newEvent = events[events.length - 1]
+  const attempts = await getEventDeliveryAttempts(organizationIdentifier, newEvent.eventIdentifier)
+  expect(attempts.length).toBeGreaterThan(0)
+  expect(attempts[0].eventIdentifier).toEqual(newEvent.eventIdentifier)
+}
 
 const getDefaultOrganizationIdentifier = async () => {
   const token = await shared.getAccessToken(['dockhealth/system.org.read'])
@@ -266,6 +299,22 @@ const updateOrganization = async (organizationIdentifier, userIdentifier) => {
     .expect(200)
     .then(res => {
       console.debug('Updated organization: ' + JSON.stringify(res.body))
+      return res.body
+    })
+}
+
+const createUser = async (organizationIdentifier, userIdentifier) => {
+  const email = shared.generateEmail()
+  const token = await shared.getAccessToken(['dockhealth/user.all.write'])
+  const headers = shared.userAndOrgHeaders(token, userIdentifier, organizationIdentifier)
+  const url = encodeURI('/api/v1/user')
+  return await request
+    .post(url)
+    .set(headers)
+    .send({ email: email, firstName: 'John', lastName: email })
+    .expect(200)
+    .then(res => {
+      console.debug('Created user: ' + JSON.stringify(res.body))
       return res.body
     })
 }
