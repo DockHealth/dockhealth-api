@@ -51,33 +51,18 @@ Payload:
     
 Example:
 
+See `Event Types`, below, for the full list of supported event types.
+
 ```json
 {
   "url": "https://webhooks.mycompany.com",
   "secret": "30163935c002fc4e1200906c3d30a9c4956b4af9f6dcaef1eb4b1fcb8fba69e7a7acdc491ea5b1f2864ea8c01b01580ef09defc3b11b3f183cb21d236f7f1a6b",
   "enabled": true,
   "events": [
-    "ORGANIZATION_CREATED", 
-    "ORGANIZATION_UPDATED", 
-    "ORGANIZATION_DELETED",
-    "USER_CREATED",
-    "USER_UPDATED",
-    "USER_DELETED",
-    "PATIENT_CREATED",
-    "PATIENT_UPDATED",
-    "PATIENT_DELETED",
-    "PATIENT_NOTE_CREATED",
-    "PATIENT_NOTE_UPDATED",
-    "PATIENT_NOTE_DELETED",
-    "TASK_LIST_CREATED",
-    "TASK_LIST_UPDATED",
-    "TASK_LIST_DELETED",
-    "TASK_GROUP_CREATED",
-    "TASK_GROUP_UPDATED",
-    "TASK_GROUP_DELETED",
-    "TASK_CREATED",
-    "TASK_UPDATED",
-    "TASK_DELETED"
+    "CREATE_ORGANIZATION", 
+    "UPDATE_ORGANIZATION", 
+    "DELETE_ORGANIZATION",
+    ...
   ]
 }
 ```
@@ -202,6 +187,232 @@ These requests all require the `dockhealth/system.developer.read` scope.
         - To return a time-based range of event delivery history for a given organization:
             - `/api/v1/developer/event?organization={organizationIdentifier}&startTs={startTs}&endTs={endTs}`
             - Timestamps must be in this format and are assumed to be UTC: `yyyy-MM-dd HH:mm:ss`
+
+## Event Payload
+
+The webhook event payload contains key information about the event:
+  - eventIdentifier: The unique identifier of the event. This id can be used to fetch this event on demand from Dock.
+  - organizationIdentifier: The organization within which the event took place.
+  - userIdentifier: The user that generated the event.
+  - eventTypeName: The type of the event. The full list is above.
+  - audit: A human-readable audit of the event. It will contain two attributes:
+    - previousState: The state before the event occurred.
+      currentState: The state as a result of the event.
+  - changes: An array of changes. These come in three types and any or all could be present in a single event:
+    - newObjects: An array of objects created as a result of the event.
+    - objectsRemoved: An array of objects deleted as a result of the event.
+    - propertyChanges: An array of changes to each object updated, grouped by the affected object.
+    
+Each object referenced will contain a `globalId` block where `typeName` is the type of the affected object,
+and `cdoId` is the identifier of the affected object.
+
+Property changes will contain the following child attribues with information about the updated object:
+  - changeType: This can be one of: `PROPERTY_VALUE_CHANGED`, `PROPERTY_ADDED`, `PROPERTY_REMOVED`.
+  - propertyAdded: The name of the added property.
+  - propertyRemoved: The name of the removed property.
+  - propertyName: The name of the object attribute that was affected.
+  - left: The `before` value of the updated property.
+  - right: The `after` value of the updated property.
+
+IMPORTANT: Webhooks are still in active development. The webhook event payload is subject to change.
+
+A sample event looks like this:
+
+```json
+{
+      "eventIdentifier": "545ae77d-67a3-4d07-8b8b-ee708d641dc5",
+      "organizationIdentifier": "45394903-5f3f-4e85-a45d-574729e75ec6",
+      "userIdentifier": "ab670e32-e311-45d6-a1ee-5bfdecf5b460",
+      "eventTypeName": "UPDATE_ORGANIZATION",
+      "createdAt": "2021-06-08T05:44:14.982",
+      "audit": {
+        "previousState": "Organization legal name was mabraham.org",
+        "currentState": "Organization legal name was updated to 'mabraham.org'"
+      },
+      "changes": [
+        {
+          "globalId": {
+            "typeName": "Organization",
+            "cdoId": "45394903-5f3f-4e85-a45d-574729e75ec6,233"
+          },
+          "newObjects": [],
+          "propertyChanges": [
+            {
+              "commitMetadata": null,
+              "changeType": "PROPERTY_VALUE_CHANGED",
+              "propertyName": "organizationName",
+              "left": "pdlmqwnk.mabraham.org",
+              "right": "qtf2gobh.mabraham.org",
+              "propertyNameWithPath": "organizationName",
+              "propertyAdded": false,
+              "propertyRemoved": false,
+              "propertyValueChanged": true,
+              "affectedGlobalId": {
+                "typeName": "Organization",
+                "cdoId": "45394903-5f3f-4e85-a45d-574729e75ec6,233"
+              },
+              "affectedLocalId": "45394903-5f3f-4e85-a45d-574729e75ec6,233",
+              "affectedObject": null
+            },
+            {
+              "commitMetadata": null,
+              "changeType": "PROPERTY_VALUE_CHANGED",
+              "propertyName": "updatedDateTime",
+              "left": "2021-06-08T04:59:59.000+00:00",
+              "right": "2021-06-08T05:44:14.979+00:00",
+              "propertyNameWithPath": "updatedDateTime",
+              "propertyAdded": false,
+              "propertyRemoved": false,
+              "propertyValueChanged": true,
+              "affectedGlobalId": {
+                "typeName": "Organization",
+                "cdoId": "45394903-5f3f-4e85-a45d-574729e75ec6,233"
+              },
+              "affectedLocalId": "45394903-5f3f-4e85-a45d-574729e75ec6,233",
+              "affectedObject": null
+            }
+          ],
+          "objectsRemoved": []
+        }
+      ]
+    }
+```
+
+## Event Types
+
+```javascript
+{
+  CREATE_TASK("A new Task was created"),
+  CREATE_TASK_FROM_EMAIL("A new Task was created via email"),
+  CREATE_RECURRING_TASK("A reccurring Task was created"),
+  CREATE_USER("A new User was created"),
+  CREATE_PATIENT("A new Patient was created"),
+  CREATE_PATIENT_NOTE("A new patient note was created"),
+  CREATE_COMMENT("A new Comment was created"),
+  CREATE_ATTACHMENT("A new attachment was added"),
+  CREATE_ORGANIZATION("A new Organization was created"),
+  CREATE_LIST("A new List was created"),
+  CREATE_PROTOCOL("A new Protocol was created"),
+  CREATE_PROTOCOL_ITEM("A new Protocol Item was created"),
+  UPDATE_TASK("Task was updated"),
+  UPDATE_TASK_DESCRIPTION("Task description was updated"),
+  UPDATE_TASK_PATIENT("Task patient was updated"),
+  UPDATE_TASK_PRIORITY("Task priority was updated"),
+  UPDATE_TASK_DUE_DATE("Task due date was updated"),
+  UPDATE_TASK_STATUS("Task status was updated"),
+  UPDATE_TASK_WORKFLOW_STATUS("Task workflow status was updated"),
+  UPDATE_TASK_RECURRING_SCHEDULE("Task recurring schedule was updated"),
+  UPDATE_USER("User was updated"),
+  UPDATE_USER_FIRSTNAME("user first name updated"),
+  UPDATE_USER_LASTNAME("user last name updated"),
+  UPDATE_USER_SPECIALTY("user specialty updated"),
+  UPDATE_USER_SUBSPECIALTY("user subspecialty updated"),
+  UPDATE_USER_TITLE("user title updated"),
+  UPDATE_USER_CREDENTIALS("user credentials updated"),
+  UPDATE_USER_ACCOUNTPHONE("user account phone updated"),
+  UPDATE_USER_WORKPHONE("user work phone updated"),
+  UPDATE_USER_HOMEPHONE("user home phone updated"),
+  UPDATE_USER_FAXNUMBER("user fax number updated"),
+  UPDATE_USER_PROFILEPIC("user updated profile picture"),
+  UPDATE_USER_NOTIFICATIONPREF_EMAIL("user updated email notification preference"),
+  UPDATE_USER_NOTIFICATIONPREF_PUSH("user updated push notification preference"),
+  UPDATE_USER_PREF_DISPLAY_COLUMNS("user updated display columns preference"),
+  UPDATE_PATIENT("Patient was updated"),
+  UPDATE_PATIENT_NOTE("Patient note was updated"),
+  UPDATE_COMMENT("Comment was updated"),
+  UPDATE_ATTACHMENT("Attachment was updated"),
+  UPDATE_ORGANIZATION("Organization was updated"),
+  UPDATE_ORGANIZATION_LEGAL_NAME("Organization legal name was updated"),
+  UPDATE_ORGANIZATION_SIGNATURE_STATUS("Organization signature status was updated"),
+  BAA_SIGNATURE_REQUEST_SENT("BAA signature request sent"),
+  UPDATE_LIST("List was updated"),
+  UPDATE_LIST_NOTIFICATION_ON("list notifications turned on"),
+  UPDATE_LIST_NOTIFICATION_OFF("list notifications turned off"),
+  UPDATE_PROTOCOL("Protocol was updated"),
+  UPDATE_PROTOCOL_ITEM("Protocol Item was updated"),
+  DELETE_TASK("Task was deleted"),
+  UNDELETE_TASK("Task was undeleted"),
+  DELETE_USER("User was deleted"),
+  DELETE_USER_PROFILEPIC("user deleted profile picture"),
+  DELETE_PATIENT("Patient was deleted"),
+  DELETE_PATIENT_NOTE("Patient note was deleted"),
+  DELETE_COMMENT("Comment was deleted"),
+  DELETE_ATTACHMENT("Attachment was deleted"),
+  DELETE_ORGANIZATION("Organization was deleted"),
+  DELETE_LIST("List was deleted"),
+  DELETE_PROTOCOL("Protocol was deleted"),
+  DELETE_PROTOCOL_ITEM("Protocol Item was deleted"),
+  ASSIGN_TASK("A task was assigned"),
+  SET_PRIORITY("Task was set as priority"),
+  MARK_TASKS_READ("Multiple Tasks marked as 'read'"),
+  MARK_READ("Task marked as read"),
+  //    MARK_UNREAD("Task marked as unread"),
+  MARK_COMPLETE("Task marked as complete"),
+  MARK_INCOMPLETE("Task marked as incomplete"),
+  FLAG_AS_UNREAD("User explicitly set Task as 'unread'"),
+  UNFLAG_AS_READ("User explicitly set Task as 'read'"),
+  ADD_USER_TO_ORGANIZATION("User added to Organization"),
+  ADD_USER_TO_LIST("User added to List"),
+  ADD_PATIENT_TO_TASK("Add a patient to a Task"),
+  REMOVE_USER_FROM_LIST("User removed from List"),
+  USER_LEAVES_LIST("User left List"),
+  USER_LEAVES_ORGANIZATION("User left Organization"),
+  MARK_TASK_UNASSIGNED("Remove assignment of tasks for the user"),
+  REMOVE_USER_FROM_ORGANIZATION("User removed from Organization"),
+  ADD_EXISTING_TASK_TO_LIST("Existing Task added to List"),
+  ADD_NEW_TASK_TO_LIST("New Task added to List"),
+  ADD_EXISTING_SUBTASK_TO_ANOTHER_TASK("Sub Task moved to another parent"),
+  INVITE_USER_TO_ORGANIZATION("Invite someone to an Organization"),
+  INVITE_USER_TO_ORG_AND_LIST("Invite new user to organization and TaskList"),
+  ACCEPT_INVITATION_TO_ORGANIZATION("Accept an invitation to Organization"),
+  ACCEPT_INVITATION_TO_LIST("Accept an invitation to TaskList"),
+  REJECT_INVITATION_TO_LIST("Reject an invitation to TaskList"),
+  CANCEL_INVITATION_TO_LIST("Cancel an invitation to TaskList"),
+  CHANGE_TASK_PRIORITY("Change the priority of a Task"),
+  ADD_DUE_DATE("Add due date to a Task"),
+  MARK_TASKS_AS_SEEN("Mark multiple Task as seen for assigner to view"),
+  MARK_TASK_AS_SEEN("Task marked as seen"),
+  ADD_SUBTASK("Subtask added to a Task"),
+  NOTIFIABLE("Event triggers one or more Notifications"),
+  ACTIVITY_FEED("Event is logged in the Activity Feed"),
+  MAKE_ADMIN_FOR_LIST("Give admin rights for list"),
+  REMOVE_ADMIN_FOR_LIST("Remove admin rights for list"),
+  MARK_LIST_INVITE_INACTIVE("Mark tasklist invite to inactive"),
+  MARK_TASK_INACTIVE("Mark task to inactive"),
+  MAKE_ADMIN_FOR_ORGANIZATION("Give admin rights for organization"),
+  REMOVE_ADMIN_FOR_ORGANIZATION("Remove admin rights for organization"),
+  CANCEL_INVITATION_TO_ORGANIZATION("Cancel an invitation to organization"),
+  DUPLICATE_TASK("Duplicate task"),
+  TASK_REMINDER_SET("Reminder set for task"),
+  TASK_REMINDER_NOTIFICATION_TRIGGERED("Reminder notification triggered for task"),
+  TASK_DUE_DATE_REMINDER_TRIGGERED("Due Date reminder triggered for task"),
+  SELECT_SUBSCRIPTION("Organization subscription plan was updated"),
+  BILLING_DETAILS_UPDATE("Organization billing details were updated"),
+  CREATE_LIST_LABEL("A label was created"),
+  DELETE_LIST_LABEL("A label was deleted"),
+  ADD_TASK_LABEL("Task label was added"),
+  EDIT_TASK_LABEL("Task label was edited"),
+  REMOVE_TASK_LABEL("Task label was removed"),
+  CREATE_TASK_GROUP("A task group was created"),
+  EDIT_TASK_GROUP("Task group name was edited"),
+  DELETE_TASK_GROUP("Task group was deleted"),
+  ADD_TASK_TO_GROUP("Task was added to a group"),
+  REMOVE_TASK_FROM_GROUP("Task was removed from a group"),
+  CREATE_TASK_TEMPLATE("A task template was created"),
+  EDIT_TASK_TEMPLATE("Task template was edited"),
+  DELETE_TASK_TEMPLATE("Task template was deleted"),
+  ADD_TASK_TO_TEMPLATE("Task was added to a template"),
+  REMOVE_TASK_FROM_TEMPLATE("Task was removed from a template"),
+  DUPLICATE_TASK_TEMPLATE("Task template was duplicated"),
+  CREATE_TASK_BUNDLE("Task bundle created from template"),
+  UPDATE_TASK_BUNDLE("Task bundle was updated"),
+  DUPLICATE_TASK_BUNDLE("Task bundle duplicated"),
+  DELETE_TASK_BUNDLE("Task bundle was deleted"),
+  MOVE_TASK_BUNDLE("Task bundle was moved"),
+  MENTION_TASK("User is mentioned in a task"),
+  MENTION_COMMENT("User is mentioned in a comment")
+}
+```
 
 ## Next Steps
 

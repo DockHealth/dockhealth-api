@@ -55,7 +55,7 @@ test('Authorize Webhook', async () => {
 
   let token = await shared.getAccessToken(['dockhealth/system.developer.write'])
   let headers = shared.devHeaders(token)
-  let events = ['ORGANIZATION_CREATED']
+  let events = ['CREATE_ORGANIZATION']
 
   // Setup ngrok to proxy to our local server on port 3000.
   const ngrokOptions = {
@@ -97,7 +97,7 @@ test('Authorize Webhook', async () => {
 
   token = await shared.getAccessToken(['dockhealth/system.developer.write'])
   headers = shared.devHeaders(token)
-  events = ['ORGANIZATION_CREATED', 'ORGANIZATION_UPDATED']
+  events = ['CREATE_ORGANIZATION', 'UPDATE_ORGANIZATION']
 
   await request
     .put('/api/v1/developer/webhook/' + id)
