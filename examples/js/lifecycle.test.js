@@ -110,12 +110,12 @@ test('Dock Health API Lifecycle Test.', async () => {
 
   token = await shared.getAccessToken(['dockhealth/user.all.write'])
 
-  // `/organization` endpoints an additional `x-user-id` header set to the id of the user making the request.
+  // `/organization` endpoints require an additional `x-user-id` header set to the id of the user making the request.
   // See the `shared.userHeaders()` convenience method for an example of setting the appropriate headers.
 
   headers = shared.userHeaders(token, userId)
 
-  // You must supply an domain name for the new organization, and that domain name must be unique across all of Dock Health.
+  // You must supply a domain name for the new organization, and that domain name must be unique across all of Dock Health.
   // To make it easier to guarantee a unique domain name, we will generate one here based on your domain.
   // In real life, you must supply a unique domain name.
 
@@ -171,7 +171,7 @@ test('Dock Health API Lifecycle Test.', async () => {
 
   // Create a new user and store the returned id for later use.
 
-  // `/user` endpoints an additional `x-organization-id` header set to the id of the organization making the request.
+  // `/user` endpoints require an additional `x-organization-id` header set to the id of the organization making the request.
   // See the `shared.userAndOrgHeaders()` convenience method for an example of setting the appropriate headers.
 
   // This user will be associated with the organization specified by `x-organization-id` header in the request.
