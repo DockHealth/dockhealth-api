@@ -61,8 +61,7 @@ See `Event Types`, below, for the full list of supported event types.
   "events": [
     "CREATE_ORGANIZATION", 
     "UPDATE_ORGANIZATION", 
-    "DELETE_ORGANIZATION",
-    ...
+    "DELETE_ORGANIZATION"
   ]
 }
 ```
@@ -173,109 +172,76 @@ Developers can pull events via the following Dock Health API endpoints:
 
 These requests all require the `dockhealth/system.developer.read` scope.
 
+NOTE: Timestamps must be formatted as ISO 8601 UTC strings (yyyy-MM-ddTHH:mm:ss.SSSZ).
+
 - `GET /api/v1/developer/event` returns all events for the given developer account matching the provided search criteria.
-  - This endpoint requires one of two different query strings:
+  - This endpoint requires one of three different query strings:
     - To return a single event: 
       - `/api/v1/developer/event?organization={organizationIdentifier}&event={eventIdentifier}`
     - To return a time-based range of events for a given organization:
         - `/api/v1/developer/event?organization={organizationIdentifier}&startTs={startTs}&endTs={endTs}`
-        - Timestamps must be in this format and are assumed to be UTC: `yyyy-MM-dd HH:mm:ss`
+    - To return a time-based range of events for a given organization and event type:
+        - `/api/v1/developer/event?organization={organizationIdentifier}&type=ORGANIZATION_UPDATED&startTs={startTs}&endTs={endTs}`
 - `GET /api/v1/developer/event/delivery` returns the event delivery history matching the provided search criteria.
-    - This endpoint requires one of two different query strings:
-        - To return the event delivery history for single event:
-            - `/api/v1/developer/event/delivery?organization={organizationIdentifier}&event={eventIdentifier}`
-        - To return a time-based range of event delivery history for a given organization:
-            - `/api/v1/developer/event?organization={organizationIdentifier}&startTs={startTs}&endTs={endTs}`
-            - Timestamps must be in this format and are assumed to be UTC: `yyyy-MM-dd HH:mm:ss`
+  - This endpoint requires one of three different query strings:
+    - To return the event delivery history for single event:
+        - `/api/v1/developer/event/delivery?organization={organizationIdentifier}&event={eventIdentifier}`
+    - To return a time-based range of event delivery history for a given organization:
+        - `/api/v1/developer/event?organization={organizationIdentifier}&startTs={startTs}&endTs={endTs}`
+    - To return a time-based range of event delivery history for a given organization and event type:
+        - `/api/v1/developer/event?organization={organizationIdentifier}&type=ORGANIZATION_UPDATED&startTs={startTs}&endTs={endTs}`
 
 ## Event Payload
 
 The webhook event payload contains key information about the event:
-  - eventIdentifier: The unique identifier of the event. This id can be used to fetch this event on demand from Dock.
-  - organizationIdentifier: The organization within which the event took place.
-  - userIdentifier: The user that generated the event.
-  - eventTypeName: The type of the event. The full list is above.
-  - audit: A human-readable audit of the event. It will contain two attributes:
-    - previousState: The state before the event occurred.
-      currentState: The state as a result of the event.
-  - changes: An array of changes. These come in three types and any or all could be present in a single event:
-    - newObjects: An array of objects created as a result of the event.
-    - objectsRemoved: An array of objects deleted as a result of the event.
-    - propertyChanges: An array of changes to each object updated, grouped by the affected object.
+  - `eventIdentifier`: The unique identifier of the event. This id can be used to fetch this event on demand from Dock.
+  - `organizationIdentifier`: The organization within which the event took place.
+  - `userIdentifier`: The user that generated the event.
+  - `eventType`: The type of the event. The full list is below.
+  - `createdAt`: The time at which the event was created, in ISO 8601 UTC format.
+  - `audit`: A human-readable audit of the event. It will contain the following attributes:
+    - `auditEventType`: The event type. This will match the eventType of the containing event. 
+    - `targetIdentifier`: The identifier of the affected Dock Health object. 
+    - `targetType`: The type of the affected Dock Health object.
+    - `currentState`: A human-readable string describing the state of the object after the event occurred.
+    - `previousState`: A human-readable string describing the state of the object before the event occurred.
+    - `currentValues`: A set of 0 or more key-value pairs representing the state of the object after the event occurred.
+    - `previousValues`: A set of 0 or more key-value pairs representing the state of the object before the event occurred.
     
-Each object referenced will contain a `globalId` block where `typeName` is the type of the affected object,
-and `cdoId` is the identifier of the affected object.
-
-Property changes will contain the following child attribues with information about the updated object:
-  - changeType: This can be one of: `PROPERTY_VALUE_CHANGED`, `PROPERTY_ADDED`, `PROPERTY_REMOVED`.
-  - propertyAdded: The name of the added property.
-  - propertyRemoved: The name of the removed property.
-  - propertyName: The name of the object attribute that was affected.
-  - left: The `before` value of the updated property.
-  - right: The `after` value of the updated property.
-
 IMPORTANT: Webhooks are still in active development. The webhook event payload is subject to change.
 
 A sample event looks like this:
 
 ```json
 {
-      "eventIdentifier": "545ae77d-67a3-4d07-8b8b-ee708d641dc5",
-      "organizationIdentifier": "45394903-5f3f-4e85-a45d-574729e75ec6",
-      "userIdentifier": "ab670e32-e311-45d6-a1ee-5bfdecf5b460",
-      "eventTypeName": "UPDATE_ORGANIZATION",
-      "createdAt": "2021-06-08T05:44:14.982",
-      "audit": {
-        "previousState": "Organization legal name was mabraham.org",
-        "currentState": "Organization legal name was updated to 'mabraham.org'"
-      },
-      "changes": [
-        {
-          "globalId": {
-            "typeName": "Organization",
-            "cdoId": "45394903-5f3f-4e85-a45d-574729e75ec6,233"
-          },
-          "newObjects": [],
-          "propertyChanges": [
-            {
-              "commitMetadata": null,
-              "changeType": "PROPERTY_VALUE_CHANGED",
-              "propertyName": "organizationName",
-              "left": "pdlmqwnk.mabraham.org",
-              "right": "qtf2gobh.mabraham.org",
-              "propertyNameWithPath": "organizationName",
-              "propertyAdded": false,
-              "propertyRemoved": false,
-              "propertyValueChanged": true,
-              "affectedGlobalId": {
-                "typeName": "Organization",
-                "cdoId": "45394903-5f3f-4e85-a45d-574729e75ec6,233"
-              },
-              "affectedLocalId": "45394903-5f3f-4e85-a45d-574729e75ec6,233",
-              "affectedObject": null
-            },
-            {
-              "commitMetadata": null,
-              "changeType": "PROPERTY_VALUE_CHANGED",
-              "propertyName": "updatedDateTime",
-              "left": "2021-06-08T04:59:59.000+00:00",
-              "right": "2021-06-08T05:44:14.979+00:00",
-              "propertyNameWithPath": "updatedDateTime",
-              "propertyAdded": false,
-              "propertyRemoved": false,
-              "propertyValueChanged": true,
-              "affectedGlobalId": {
-                "typeName": "Organization",
-                "cdoId": "45394903-5f3f-4e85-a45d-574729e75ec6,233"
-              },
-              "affectedLocalId": "45394903-5f3f-4e85-a45d-574729e75ec6,233",
-              "affectedObject": null
-            }
-          ],
-          "objectsRemoved": []
-        }
-      ]
+  "eventIdentifier": "fa65df0a-5585-44c3-9b81-f3f02f713268",
+  "organizationIdentifier": "a24c05fd-843c-4fe0-9e8a-399b899ef490",
+  "userIdentifier": "7c208219-d55a-4fc8-a720-d2a04a5c360f",
+  "eventType": "UPDATE_ORGANIZATION",
+  "createdAt": "2022-02-10T23:07:26.094Z",
+  "audit": {
+    "eventType": "UPDATE_ORGANIZATION",
+    "targetType": "ORGANIZATION",
+    "targetIdentifier": "a24c05fd-843c-4fe0-9e8a-399b899ef490",
+    "activityFeed": null,
+    "currentState": "Organization name was updated to Coyote Health Services.",
+    "previousState": "Organization name was Wiley Health Services.",
+    "currentValues": {
+      "organizationProfileColor": "#ee8b31",
+      "organizationCustomerType": "PATIENT",
+      "organizationName": "Coyote Health Services",
+      "organizationInitials": "CHS",
+      "organizationLegalEntityName": "Coyote Health Services"
+    },
+    "previousValues": {
+      "organizationProfileColor": "#ee8b31",
+      "organizationCustomerType": "PATIENT",
+      "organizationName": "Wiley Health Services",
+      "organizationInitials": "WHS",
+      "organizationLegalEntityName": "Wiley Health Services"
     }
+  }
+}
 ```
 
 ## Event Types
@@ -414,6 +380,39 @@ A sample event looks like this:
 }
 ```
 
+## Target Types
+
+```javascript
+{
+  TASK("This was a Task event"), 
+  USER("This was a User event"),
+  PATIENT("This was a Patient event"),
+  PATIENT_NOTE("This was a Patient Note event"),
+  COMMENT("This was a Comment event"),
+  ATTACHMENT("This was a Attachment event"),
+  ORGANIZATION("This was an Organization event"),
+  LIST("This was a TaskList event"),
+  LIST_LABEL("This was a List Label event"),
+  TASK_LABEL("This was a Task Label event"),
+  PROTOCOL("This was a Protocol event"),
+  PROTOCOL_ITEM("This was a Protocol Item event"),
+  ORG_USER("This was an OrgUser event"),
+  LIST_USER("This was a ListUser event"),
+  USER_INVITE("This was a UserInvite event"),
+  TASK_GROUP("This was a Task Group event"),
+  TASK_TEMPLATE("This was a Task Template event"),
+  TASK_STATUS("This was a Task Status event"),
+  PATIENT_LIST("This was a Patient List event"),
+  SHARED_LABEL("This was a Shared Label event"),
+  PATIENT_LABEL("This was a Patient Label event"),
+  CUSTOM_FIELD("This was a Custom Field event"),
+  PATIENT_META_DATA("This was a Patient Meta Data event"),
+  TASK_META_DATA("This was a Task Meta Data event"),
+  TASK_OUTCOME("This was a Task Outcome event"),
+  TRANSACTION_EVENT("Transaction event")
+}
+```
+
 ## Next Steps
 
 The Dock Health API Developer Guide and client examples are available at our public
@@ -426,11 +425,11 @@ The Dock Health API reference is available in three formats - OpenAPI (yaml), Re
 - DEVELOPMENT:
   - OpenAPI: <https://partner-api-dev.dockhealth.app/api-docs>
   - Redoc: <https://partner-api-dev.dockhealth.app/api-docs/redoc>
-  - Swagger: <https://partner-api-dev.dockhealth.app/api-docs/swagger-ui.html>
+  - Swagger: <https://partner-api-dev.dockhealth.app/api-docs/swagger>
 - PRODUCTION:
   - OpenAPI: <https://partner-api.dock.health/api-docs>
   - Redoc: <https://partner-api.dock.health/api-docs/redoc>
-  - Swagger: <https://partner-api.dock.health/api-docs/swagger-ui.html>
+  - Swagger: <https://partner-api.dock.health/api-docs/swagger>
   
 Finally, if you have any trouble, please don't hesitate to reach out for help. Either:
 
