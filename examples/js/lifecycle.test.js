@@ -115,7 +115,7 @@ test('Dock Health API Lifecycle Test.', async () => {
 
   headers = shared.userHeaders(token, userId)
 
-  // You must supply an domain name for the new organization, and that domain name must be unique across all of Dock Health.
+  // You must supply a domain name for the new organization, and that domain name must be unique across all of Dock Health.
   // To make it easier to guarantee a unique domain name, we will generate one here based on your domain.
   // In real life, you must supply a unique domain name.
 
@@ -201,7 +201,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   // since it could be a big list.
 
   // NOTE: In order to add a user to an organization, the user making the request must be an admin or owner of that org.
-  // Here, we will use the user who created the organization, who is it's owner by default.
+  // Here, we will use the user who created the organization, who is its owner by default.
 
   token = await shared.getAccessToken(['dockhealth/user.all.write'])
   headers = shared.userHeaders(token, userId)

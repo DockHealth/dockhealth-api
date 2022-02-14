@@ -64,9 +64,9 @@ The examples require the following environment variables to be set:
 ```shell
 AUTH_URL = https://dock-health-dev.auth.us-east-1.amazoncognito.com
 API_URL = https://partner-api-dev.dockhealth.app
-API_KEY = "The API_KEY you received from Dock Health"
-CLIENT_ID = "The CLIENT_ID you received from Dock Health"
-CLIENT_SECRET = "The CLIENT_SECRET you received from Dock Health"
+API_KEY = "The API_KEY you received from Dock Health."
+CLIENT_ID = "The CLIENT_ID you received from Dock Health."
+CLIENT_SECRET = "The CLIENT_SECRET you received from Dock Health."
 DOMAIN = "The domain name you used when creating your account and initial organization in the Dock Health app."
 EMAIL = "The email address you used when creating your account and first user in the Dock Health app."
 CALLBACK_PROXY_URL = "(Webhooks Only) The ngrok proxy URL to proxy webhook verification calls back to your local server."
@@ -125,11 +125,11 @@ The Dock Health API reference is available in three formats - OpenAPI (yaml), Re
 - DEVELOPMENT:
   - OpenAPI: <https://partner-api-dev.dockhealth.app/api-docs>
   - Redoc: <https://partner-api-dev.dockhealth.app/api-docs/redoc>
-  - Swagger: <https://partner-api-dev.dockhealth.app/api-docs/swagger-ui.html>
+  - Swagger: <https://partner-api-dev.dockhealth.app/api-docs/swagger>
 - PRODUCTION:
   - OpenAPI: <https://partner-api.dockhealth.app/api-docs>
   - Redoc: <https://partner-api.dockhealth.app/api-docs/redoc>
-  - Swagger: <https://partner-api.dockhealth.app/api-docs/swagger-ui.html>
+  - Swagger: <https://partner-api.dockhealth.app/api-docs/swagger>
 
 ## Contact Us
 
