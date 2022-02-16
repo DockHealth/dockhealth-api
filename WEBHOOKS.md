@@ -197,12 +197,14 @@ The webhook event payload contains key information about the event:
   - `eventIdentifier`: The unique identifier of the event. This id can be used to fetch this event on demand from Dock.
   - `organizationIdentifier`: The organization within which the event took place.
   - `userIdentifier`: The user that generated the event.
+  - `targetIdentifier`: The identifier of the affected Dock Health object.
+  - `targetType`: The type of the affected Dock Health object. The full list is below.
   - `eventType`: The type of the event. The full list is below.
   - `createdAt`: The time at which the event was created, in ISO 8601 UTC format.
   - `audit`: A human-readable audit of the event. It will contain the following attributes:
-    - `auditEventType`: The event type. This will match the eventType of the containing event. 
-    - `targetIdentifier`: The identifier of the affected Dock Health object. 
-    - `targetType`: The type of the affected Dock Health object.
+    - `targetIdentifier`: The identifier of the affected Dock Health object. This will match the `targetIdentifier` of the containing event.
+    - `targetType`: The type of the affected Dock Health object. This will match the `targetType` of the containing event.
+    - `eventType`: The event type. This will match the `eventType` of the containing event. 
     - `currentState`: A human-readable string describing the state of the object after the event occurred.
     - `previousState`: A human-readable string describing the state of the object before the event occurred.
     - `currentValues`: A set of 0 or more key-value pairs representing the state of the object after the event occurred.
@@ -217,13 +219,14 @@ A sample event looks like this:
   "eventIdentifier": "fa65df0a-5585-44c3-9b81-f3f02f713268",
   "organizationIdentifier": "a24c05fd-843c-4fe0-9e8a-399b899ef490",
   "userIdentifier": "7c208219-d55a-4fc8-a720-d2a04a5c360f",
+  "targetIdentifier": "572a0cb5-4bbe-11ea-a4e8-124feabd864b",
+  "targetType": "ORGANIZATION",
   "eventType": "UPDATE_ORGANIZATION",
   "createdAt": "2022-02-10T23:07:26.094Z",
   "audit": {
-    "eventType": "UPDATE_ORGANIZATION",
-    "targetType": "ORGANIZATION",
     "targetIdentifier": "a24c05fd-843c-4fe0-9e8a-399b899ef490",
-    "activityFeed": null,
+    "targetType": "ORGANIZATION",
+    "eventType": "UPDATE_ORGANIZATION",
     "currentState": "Organization name was updated to Coyote Health Services.",
     "previousState": "Organization name was Wiley Health Services.",
     "currentValues": {
