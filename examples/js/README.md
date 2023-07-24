@@ -122,14 +122,9 @@ Please see the examples section of this repo for full working examples covering 
 
 The Dock Health API reference is available in three formats - OpenAPI (yaml), Redoc, and Swagger:
 
-- DEVELOPMENT:
-  - OpenAPI: <https://partner-api-dev.dockhealth.app/api-docs>
-  - Redoc: <https://partner-api-dev.dockhealth.app/api-docs/redoc>
-  - Swagger: <https://partner-api-dev.dockhealth.app/api-docs/swagger>
-- PRODUCTION:
-  - OpenAPI: <https://partner-api.dockhealth.app/api-docs>
-  - Redoc: <https://partner-api.dockhealth.app/api-docs/redoc>
-  - Swagger: <https://partner-api.dockhealth.app/api-docs/swagger>
+- OpenAPI: <https://partner-api-dev.dockhealth.app/api-docs>
+- Redoc: <https://partner-api-dev.dockhealth.app/api-docs/redoc>
+- Swagger: <https://partner-api-dev.dockhealth.app/api-docs/swagger>
 
 ## Contact Us
 

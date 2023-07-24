@@ -315,7 +315,6 @@ A sample event looks like this:
   SET_PRIORITY("Task was set as priority"),
   MARK_TASKS_READ("Multiple Tasks marked as 'read'"),
   MARK_READ("Task marked as read"),
-  //    MARK_UNREAD("Task marked as unread"),
   MARK_COMPLETE("Task marked as complete"),
   MARK_INCOMPLETE("Task marked as incomplete"),
   FLAG_AS_UNREAD("User explicitly set Task as 'unread'"),
@@ -425,14 +424,9 @@ Please see the examples section of this repo for full working examples covering 
 
 The Dock Health API reference is available in three formats - OpenAPI (yaml), Redoc, and Swagger:
 
-- DEVELOPMENT:
-  - OpenAPI: <https://partner-api-dev.dockhealth.app/api-docs>
-  - Redoc: <https://partner-api-dev.dockhealth.app/api-docs/redoc>
-  - Swagger: <https://partner-api-dev.dockhealth.app/api-docs/swagger>
-- PRODUCTION:
-  - OpenAPI: <https://partner-api.dock.health/api-docs>
-  - Redoc: <https://partner-api.dock.health/api-docs/redoc>
-  - Swagger: <https://partner-api.dock.health/api-docs/swagger>
+- OpenAPI: <https://partner-api-dev.dockhealth.app/api-docs>
+- Redoc: <https://partner-api-dev.dockhealth.app/api-docs/redoc>
+- Swagger: <https://partner-api-dev.dockhealth.app/api-docs/swagger>
   
 Finally, if you have any trouble, please don't hesitate to reach out for help. Either:
 
