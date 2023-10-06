@@ -26,6 +26,11 @@ const clientSecret = process.env.CLIENT_SECRET
 const domain = process.env.DOMAIN
 const email = process.env.EMAIL
 
+const taskListIdentifier = process.env.TASK_LIST_IDENTIFIER
+const organizationIdentifier = process.env.ORGANIZATION_IDENTIFIER
+const userIdentifier = process.env.USER_IDENTIFIER
+const taskGroupIdentifier = process.env.TASK_GROUP_IDENTIFIER
+
 // NOTE: Use ngrok to proxy calls from a well-known domain and port to localhost.
 // Set CALLBACK_LOCAL_PORT in your environment to the port of
 // your express instance setup in shared.js (default is 3000).
@@ -307,5 +312,9 @@ module.exports = {
   startServer,
   stopServer,
   userAndOrgHeaders,
-  userHeaders
+  userHeaders,
+  userIdentifier,
+  organizationIdentifier,
+  taskListIdentifier,
+  taskGroupIdentifier
 }
