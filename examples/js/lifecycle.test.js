@@ -28,158 +28,32 @@ test('Dock Health API Lifecycle Test.', async () => {
   // but in real-world usage you should expect to have to re-request tokens when they expire,
   // or request a new token with each API request.
 
-  let token = await shared.getAccessToken(['dockhealth/system.developer.read'])
-
-  // `/developer` endpoints (all endpoints, actually) require you to set at least two headers:
-  // An `Authorization` header set to the access token appropriate for the endpoint.
-  // An `x-api-key` header set to the `API_KEY` you received from Dock Health.
-  // See the `shared.userHeaders()` convenience method for an example of setting the appropriate headers.
-
-  let headers = shared.devHeaders(token)
-
-  // Fetch your developer account information.
-  await request
-    .get('/api/v1/developer')
-    .set(headers)
-    .expect(200)
-    .then(res => {
-      console.debug('Fetched developer account info:')
-      console.debug(res.body)
-    })
-
-  // Fetch the list of the organizations associated with your developer account.
-  // Initially, there will be just the single organization you setup when creating your initial account with Dock Health.
-
-  // This requires a different scope.
-
-  token = await shared.getAccessToken(['dockhealth/system.org.read'])
-  headers = shared.devHeaders(token)
-
-  // Store the organization id of that organization for use in our next request, below....
-  // NOTE: If your developer account is associated with more than one organization,
-  // and you wish to use a different organization for subsequent requests, store the id of that organization instead.
-
-  const orgId =
-    await request
-      .get('/api/v1/developer/organization')
-      .set(headers)
-      .expect(200)
-      .then(res => {
-        console.debug('Fetched developer organizations:')
-        console.debug(res.body)
-        const organization = res.body.find(org => org.domain === shared.domain)
-        if (!organization) {
-          throw Error('Organization not found: ' + shared.domain)
-        }
-        console.debug('Located organization: ' + organization.domain)
-        return organization.id
-      })
+  let token = await shared.getAccessToken(['dockhealth/user.all.read'])
 
   // Fetch the list of the users associated with your organization.
   // Initially, there will be just the single user you setup when creating your initial account with Dock Health.
   // That user will typically be the organization owner.
 
-  // This requires a different scope.
-
-  token = await shared.getAccessToken(['dockhealth/system.user.read'])
-  headers = shared.devHeaders(token)
+  let headers = shared.makeHeaders(token)
 
   // Store the user id of that user for use in our next request, below....
   // NOTE: If your organization contains more than one user, and you wish to use a different user for subsequent
   // requests, store the id of that user instead.
 
   const userId = await request
-    .get('/api/v1/developer/user?organization=' + orgId)
+    .get('/api/v1/user')
     .set(headers)
     .expect(200)
     .then(res => {
-      console.debug('Fetched users for organization: ' + orgId)
+      console.debug('Fetched users for organization')
       console.debug(res.body)
-      const user = res.body.find(u => u.email === shared.email)
-      if (!user) {
-        throw Error('User not found: ' + shared.email)
-      }
-      console.debug('Located user: ' + user.email)
-      return user.id
-    })
-
-  // Using this user, create a new organization to be associated with your developer account.
-  // This user will be the owner of this new organization.
-
-  // This requires a different scope.
-
-  token = await shared.getAccessToken(['dockhealth/user.all.write'])
-
-  // `/organization` endpoints an additional `x-user-id` header set to the id of the user making the request.
-  // See the `shared.userHeaders()` convenience method for an example of setting the appropriate headers.
-
-  headers = shared.userHeaders(token, userId)
-
-  // You must supply a domain name for the new organization, and that domain name must be unique across all of Dock Health.
-  // To make it easier to guarantee a unique domain name, we will generate one here based on your domain.
-  // In real life, you must supply a unique domain name.
-
-  const domain = shared.generateDomain()
-
-  // Create a new organization and store the returned id for later use.
-
-  const newOrgId =
-    await request
-      .post('/api/v1/organization')
-      .send({ domain: domain, name: 'new-org-' + domain })
-      .set(headers)
-      .expect(200)
-      .then(res => {
-        console.debug('Created new organization: ' + domain)
-        console.debug(res.body)
-        expect(res.body.domain).toEqual(domain)
-        return res.body.id
-      })
-
-  // Update the new organization with a different name.
-  // This requires a different scope.
-
-  token = await shared.getAccessToken(['dockhealth/user.all.write'])
-  headers = shared.userHeaders(token, userId)
-
-  const newName = 'new-org-updated'
-  await request
-    .patch('/api/v1/organization/' + newOrgId)
-    .send({ name: newName })
-    .set(headers)
-    .expect(200)
-    .then(res => {
-      console.debug('Updated new organization: ' + newOrgId)
-      console.debug(res.body)
-      expect(res.body.name).toEqual(newName)
-    })
-
-  // Confirm your changes to the organization.
-
-  token = await shared.getAccessToken(['dockhealth/user.all.read'])
-  headers = shared.userHeaders(token, userId)
-
-  await request
-    .get('/api/v1/organization/' + newOrgId)
-    .set(headers)
-    .expect(200)
-    .then(res => {
-      console.debug('Confirmed changes to organization: ' + newOrgId)
-      console.debug(res.body)
-      expect(res.body.name).toEqual(newName)
+      return res.body.id
     })
 
   // Create a new user and store the returned id for later use.
 
-  // `/user` endpoints an additional `x-organization-id` header set to the id of the organization making the request.
-  // See the `shared.userAndOrgHeaders()` convenience method for an example of setting the appropriate headers.
-
-  // This user will be associated with the organization specified by `x-organization-id` header in the request.
-  // Here, we will associate the new user with the organization you created when setting up your account,
-  // but we will show you how to associate users with other organizations in the next step.
-
   token = await shared.getAccessToken(['dockhealth/user.all.write'])
-  headers = shared.userAndOrgHeaders(token, userId, orgId)
+  headers = shared.makeHeaders(token, userId, orgId)
 
   const newUserEmail = shared.generateEmail()
   const newUserId =
@@ -229,7 +103,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   // If the user is NOT a member of the organization, the request will return 404 Not Found.
 
   token = await shared.getAccessToken(['dockhealth/user.all.read'])
-  headers = shared.userAndOrgHeaders(token, userId, orgId)
+  headers = shared.makeHeaders(token, userId, orgId)
 
   await request
     .get('/api/v1/user/' + newUserId)
@@ -241,7 +115,7 @@ test('Dock Health API Lifecycle Test.', async () => {
       expect(res.body.id).toEqual(newUserId)
     })
 
-  headers = shared.userAndOrgHeaders(token, userId, newOrgId)
+  headers = shared.makeHeaders(token, userId, newOrgId)
 
   await request
     .get('/api/v1/user/' + newUserId)
@@ -259,7 +133,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   // This requires a new scope.
 
   token = await shared.getAccessToken(['dockhealth/patient.all.write'])
-  headers = shared.userAndOrgHeaders(token, newUserId, newOrgId)
+  headers = shared.makeHeaders(token, newUserId, newOrgId)
 
   const newPatientMrn = shared.generateMrn()
   const newPatientId =
@@ -278,7 +152,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   // Confirm that the new patient exists.
 
   token = await shared.getAccessToken(['dockhealth/patient.all.read'])
-  headers = shared.userAndOrgHeaders(token, newUserId, newOrgId)
+  headers = shared.makeHeaders(token, newUserId, newOrgId)
 
   await request
     .get('/api/v1/patient/' + newPatientId)
@@ -294,7 +168,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   // Create a note for the new patient.
 
   token = await shared.getAccessToken(['dockhealth/patient.all.write'])
-  headers = shared.userAndOrgHeaders(token, newUserId, newOrgId)
+  headers = shared.makeHeaders(token, newUserId, newOrgId)
 
   const newPatientNote = 'This is a new note for patient: ' + newPatientMrn
   const newPatientNoteId =
@@ -314,7 +188,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   // Confirm that our new note is in the list.
 
   token = await shared.getAccessToken(['dockhealth/patient.all.read'])
-  headers = shared.userAndOrgHeaders(token, newUserId, newOrgId)
+  headers = shared.makeHeaders(token, newUserId, newOrgId)
 
   await request
     .get('/api/v1/patient/note?patient=' + newPatientId)
@@ -341,7 +215,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   // Delete the new patient note.
 
   token = await shared.getAccessToken(['dockhealth/patient.all.write'])
-  headers = shared.userAndOrgHeaders(token, newUserId, newOrgId)
+  headers = shared.makeHeaders(token, newUserId, newOrgId)
 
   await request
     .delete('/api/v1/patient/note/' + newPatientNoteId)
@@ -357,7 +231,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   // Delete the new patient.
 
   token = await shared.getAccessToken(['dockhealth/patient.all.write'])
-  headers = shared.userAndOrgHeaders(token, newUserId, newOrgId)
+  headers = shared.makeHeaders(token, newUserId, newOrgId)
 
   await request
     .delete('/api/v1/patient/' + newPatientId)
@@ -400,7 +274,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   // IMPORTANT: A user cannot delete themselves, and only an organization admin or owner can delete a user.
 
   token = await shared.getAccessToken(['dockhealth/user.all.write'])
-  headers = shared.userAndOrgHeaders(token, userId, orgId)
+  headers = shared.makeHeaders(token, userId, orgId)
 
   await request
     .delete('/api/v1/user/' + newUserId)
@@ -421,7 +295,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   // To do that, fetch all the users in the org....
 
   token = await shared.getAccessToken(['dockhealth/user.all.read'])
-  headers = shared.userAndOrgHeaders(token, userId, newOrgId)
+  headers = shared.makeHeaders(token, userId, newOrgId)
 
   const users =
     await request
@@ -439,7 +313,7 @@ test('Dock Health API Lifecycle Test.', async () => {
   // 2. They are not the organization owner.
 
   token = await shared.getAccessToken(['dockhealth/user.all.write'])
-  headers = shared.userAndOrgHeaders(token, userId, newOrgId)
+  headers = shared.makeHeaders(token, userId, newOrgId)
 
   const toRemove = users.map(
     async user => {

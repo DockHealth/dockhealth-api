@@ -30,7 +30,7 @@ hs_err_pid*
 *.iml
 
 # Ignore ALL env files EXCEPT the sample.
-.env.*
+examples/js/.env.test
 !.env.sample
 
 

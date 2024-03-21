@@ -65,11 +65,11 @@ const checkEnv = () => {
   if (!clientSecret) {
     throw new Error('CLIENT_SECRET is undefined!')
   }
-  if (!domain) {
-    throw new Error('DOMAIN is undefined!')
+  if (!organizationIdentifier) {
+    throw new Error('ORGANIZATION_IDENTIFIER is undefined!')
   }
-  if (!email) {
-    throw new Error('EMAIL is undefined!')
+  if (!userIdentifier) {
+    throw new Error('USER_IDENTIFIER is undefined!')
   }
   if (!callbackLocalPort) {
     throw new Error('CALLBACK_LOCAL_PORT is undefined!')
@@ -184,31 +184,7 @@ app.post('/*', async (req, res) => {
   }
 })
 
-const devHeaders = (token) => {
-  if (!token) {
-    throw new Error('Token is undefined!')
-  }
-  const json = {}
-  json[HEADER_AUTHORIZATION] = token
-  json[HEADER_API_KEY] = apiKey
-  return json
-}
-
-const userHeaders = (token, userId) => {
-  if (!token) {
-    throw new Error('Token is undefined!')
-  }
-  if (!userId) {
-    throw new Error('User id is undefined!')
-  }
-  const json = {}
-  json[HEADER_AUTHORIZATION] = token
-  json[HEADER_API_KEY] = apiKey
-  json[HEADER_USER_ID] = userId
-  return json
-}
-
-const userAndOrgHeaders = (token, userId, organizationId) => {
+const makeHeaders = (token, userId, organizationId) => {
   if (!token) {
     throw new Error('Token is undefined!')
   }
@@ -300,7 +276,6 @@ module.exports = {
   callbackLocalPort,
   ngrokAuthtoken,
   checkEnv,
-  devHeaders,
   domain,
   email,
   generateDomain,
@@ -311,8 +286,7 @@ module.exports = {
   sleep,
   startServer,
   stopServer,
-  userAndOrgHeaders,
-  userHeaders,
+  makeHeaders,
   userIdentifier,
   organizationIdentifier,
   taskListIdentifier,

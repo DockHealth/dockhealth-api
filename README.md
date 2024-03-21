@@ -24,7 +24,8 @@ Once this initial account is set up, you can use the API to create additional or
 ## Step 2: Request Your API Keys From Dock Health
 
 Dock Health authenticates your requests using your developer API keys, which consist of an `api_key`, `client_id` and a 
-`client_secret`. 
+`client_secret`, as well as the `organization identifier` of your organization and the `user identifier` of the user 
+making the request.
 
 Email Dock Health at <mailto://support@dock.health> to request your keys.
 You will need to supply the **domain** and **email** of the account you created in Step 1.
@@ -55,9 +56,6 @@ three elements:
 - The `client_id` you requested in Step 2.
 - The `client_secret` you requested in Step 2.
 - The scope(s) of the request. These must be one or more of the following and will be explained in detail later:
-  - `system.developer.read` - Read developer info as the system account.
-  - `system.org.read` - Read org info as the system account.
-  - `system.user.read` - Read user info as the system account.
   - `user.all.read` - Read data accessible by the specified user.
   - `user.all.write` - Write data accessible by the specified user.
   - `patient.all.read` - Read data associated with the specified patient.
@@ -71,7 +69,7 @@ curl --request POST \
 --data grant_type=client_credentials \
 --data client_id=7g6n9c10zl2ktkd52vff8glfln \
 --data client_secret=2hafgq78dbhqal73tgs003345getyyuldggh54dsgfsjg563amo \
---data scope="dockhealth/system.developer.read dockhealth/system.developer.write"
+--data scope="dockhealth/user.all.read dockhealth/user.all.write"
 ```
 
 **IMPORTANT: Multiple scopes must be separated by a single space!**
@@ -108,16 +106,18 @@ each endpoint. The Dock Health API reference is available in three formats - Ope
 - Redoc: <https://partner-api-dev.dockhealth.app/api-docs/redoc>
 - Swagger: <https://partner-api-dev.dockhealth.app/api-docs/swagger>
 
-For example, to request your Developer account info, you must request `dockhealth/system.developer.read` scope when
+For example, to request user info, you must request `dockhealth/user.all.read` scope when
 making your Authorization request, and supply the returned `access_token` as the authorization header, along with your
-api key:
+api key, organization identifier, and user identifier.
 
 Example Request:
 
 ```bash
 curl --request GET \
---url $API_URL/api/v1/developer \
+--url $API_URL/api/v1/user \
 --header "x-api-key: jga49hff490msgeyytihbm35f138dfchhgj63Opl" \
+--header "x-organization-id: 1bb7168a-9d5d-4723-b5e5-3772040341b6" \
+--header "x-user-id: 2bb7168a-5d5d-3623-b5e5-3772040341c5" \
 --header "Authorization: eyJraWQiOiJyYTAraGdJUlhDTEZJNlNKY0ladjNMdmVITUJoTDhGTGhOWEhLRWFCNlwvST0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2aHBvdGkzMWNpOWpmcGlzc2lmOXRrbHVsbiIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiZG9ja2hlYWx0aFwvc3lzdGVtLmRldmVsb3Blci5yZWFkIiwiYXV0aF90aW1lIjoxNjE0NTU0OTMzLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV8wRTRnSW12S1oiLCJleHAiOjE2MTQ1NTUyMzMsImlhdCI6MTYxNDU1NDkzMywidmVyc2lvbiI6MiwianRpIjoiMjU3ZTRkZGYtNThmZi00MGVlLThiNWEtMzE1MjkxMGQ1NDQ4IiwiY2xpZW50X2lkIjoiNmhwb3RpMzFjaTlqZnBpc3NpZjl0a2x1bG4ifQ.XRUBBdgGOCRcy4WW4mjEaGcc4W9S-JV0AbuKmM2PlQvqopmzizETN_NSz-3ScLbfyd_g5JO0Jfr2eimnMQSeYDU3sVhSs1CNiT8VhEps_9BVwvthQtFdFAnjzGXM7FSsSp-7amzb4Q29KtlIP3tUsgM6mmgha4c3fcRBmP1RDw2op6NP5sUrQRamQz7gz-PLqjEUJS1fSJLCR1Wcp05LaHIgaOlhCfDMzLBTV7UXC9WqmpQ6yFWYZuVmwOq8rwCrEeqXZ0oVvarDuwpx1pWVOUAUKq4giEj_hy8CjzdXkqyfyEt1-BZe93gFWuqgAZVOrVp4OgEqUp8KX6SDnfoh3A"
 ```
 
@@ -125,16 +125,25 @@ Example Response:
 
 ```json
 {
-  "contactName": "John Smith",
-  "contactEmail": "john.smith@example.com",
-  "contactPhone": "1-212-555-1212",
+  "email": "john.smith@example.com",
+  "firstName": "John",
+  "lastName": "Smith",
+  "initials": "JS",
+  "accountPhoneNumber": "+12125551212",
+  "workPhoneNumber": "+12125551212",
+  "lastLogin": "2024-02-29T00:24:21.000+00:00",
   "organizations": [
     {
-      "organizationIdentifier": "3cec036e-604d-45a9-b83c-0bb7aa157baa",
-      "name": "Smith Clinic, P.C.",
-      "subscription": "30 Day Trial"
+      "name": "Example Organization",
+      "role": "ADMIN",
+      "status": "ACTIVE",
+      "active": true,
+      "id": "1bb7168a-9d5d-4723-b5e5-3772040341b6",
+      "identifier": "1234567890"
     }
-  ]
+  ],
+  "id": "2bb7168a-5d5d-3623-b5e5-3772040341c5",
+  "identifier": "9876543210"
 }
 ```
 
@@ -164,18 +173,18 @@ Thanks for using Dock Health!
 
 ## Dock Health API Data Model
 
-- A single `Developer` has one or more `Organizations`.
-  - A single `Organization` has one or more `Patients`.
-    - A single `Patient` has one or more `Notes`.
-  - A single `Organization` has one or more `Users`.
-  - A single `Organization` has one or more `Lists`.
-    - A single `List` has one or more `Groups`.
-      - A single `Group` has one or more `Tasks`.
-        - A single `Task` has zero or more `SubTasks`.
-          - A single `Task` has zero or one existing `Patients`.
-          - A single `Task` or `SubTask` has zero or more `Assignees`, which are existing `Users`.
-          - A single `Task` or `SubTask` has zero or more `Attachments`.
-          - A single `Task` or `SubTask` has zero or more `Comments`.
+- A single `Organization` has one or more `Patients`.
+  - A single `Patient` has one or more `Notes`.
+- A single `Organization` has one or more `Users`.
+- A single `Organization` has one or more `Lists`.
+  - A single `List` has one or more `Workflows`.
+  - A single `List` has one or more `Groups`.
+    - A single `Group` has one or more `Tasks`.
+      - A single `Task` has zero or more `SubTasks`.
+        - A single `Task` has zero or one existing `Patients`.
+        - A single `Task` or `SubTask` has zero or more `Assignees`, which are existing `Users`.
+        - A single `Task` or `SubTask` has zero or more `Attachments`.
+        - A single `Task` or `SubTask` has zero or more `Comments`.
   
 ## Request Scopes
 
@@ -192,73 +201,27 @@ resource-type         = (name) # `all` used in place of wildcards
 modification-rights   = ("read" / "write")
 ```
 
-### System Scopes
-
-- `system.developer.read` - Read developer info as the system account.
-- `system.org.read` - Read org info as the system account.
-- `system.user.read` - Read user info as the system account.
-
-IMPORTANT: The `system` scopes are limited! All other activity must happen on behalf of a user!
-
 ### User Scopes:
 
-- `user.all.read` - Read data accessible by the specified user.
+- `user.all.read`  - Read data accessible by the specified user.
 - `user.all.write` - Write data accessible by the specified user.
 
 NOTE: An org is required for user operations, and the user must be part of the specified org.
 
 ### Patient Scopes
 
-- `patient.all.read` - Read data associated with the specified patient.
+- `patient.all.read`  - Read data associated with the specified patient.
 - `patient.all.write` - Write data associated with the specified patient.
 
 NOTE: A user and org are for patient operations, and the user and patient must be part of the specified org.
 
 ## Request Headers
 
-- SYSTEM requests require two headers to be set:
-  - `x-api-key` must be set to your api key created during account provisioning.
-  - `Authorization` must be set to the `access_token` returned from your Authentication request.
-    - The `access_token` in turn contains your `client_id`, `client_secret`, and `scopes`.
-- ORGANIZATION requests require the SYSTEM headers AND one additional header:
-  - `x-user-id` must be set to the identifier of a given user.
-- ALL OTHER requests require the SYSTEM headers, AND two additional headers:
-  - `x-user-id` must be set to the identifier of a given user.
-  - `x-organization-id` must be set to the identifier of an organization to which the specified user is a member.
-  
-## Dock Health API Endpoint Format
-
-Dock Health endpoints generally follow these usage conventions:
-
-### Get Single Entities: `GET /api/<version>/<entity>/<entityIdentifier>`
-`GET /v1/user/160f9192-40c2-11ea-a4e8-124feabd863a` returns the user for the specified `userIdentifier`.
-
-NOTE that the `entity` is referred to in the **singular** even when getting a list:
-`GET /api/v1/user` returns a list of users.
-`GET /api/v1/user/someuseridentifier` returns a single user.
-
-### Search For Entities Matching the Given Parameters: `GET /api/<version>/<entity>?param1=&param2=`
-`GET /api/v1/organization` returns a list of organizations for the `USER_ID` supplied in the request header:
-`GET /api/v1/user` returns a list of users for the `ORGANIZATION_ID` and `USER_ID` supplied in the request headers:
-
-### Create Entities: `POST /api/<version>/<entity>`
-`POST /api/v1/user` creates a new user.
-
-### Update (Patch) Entities: `PATCH /api/<version>/<entity>/<entityIdentifier>`
-`PATCH /api/v1/user/someuseridentifier` updates the supplied values ONLY on the existing user.
-
-### Update (Replace) Entities: `PUT /api/<version>/<entity>/<entityIdentifier>`
-`PUT /api/v1/user/someuseridentifier` entirely replaces the existing user with the supplied values.
-
-### Delete Entities: `DELETE /<version>/<entity>/<entityIdentifier>`
-`DELETE /api/v1/user/someuseridentifier` (soft) deletes an existing user.
-
-**IMPORTANT**: Currently, Dock Health ONLY supports soft-deletions! Any deleted item is actually still retrievable via
-the API, but its `active` attribute will be set to `false`. 
-
-To fetch only non-deleted (`active`) items from the API, use the `search` endpoints, supplying `active=true` as one
-of the search parameters. Alternatively, retrieve items from the API and filter any inactive items from the returned 
-results.
+- `x-api-key` must be set to your api key created during account provisioning.
+- `Authorization` must be set to the `access_token` returned from your Authentication request.
+  - The `access_token` in turn contains your `client_id`, `client_secret`, and `scopes`.
+- `x-user-id` must be set to the identifier of a given user.
+- `x-organization-id` must be set to the identifier of an organization to which the specified user is a member.
 
 ## Dock Health API Errors
 
