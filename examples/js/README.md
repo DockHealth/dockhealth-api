@@ -88,7 +88,7 @@ in this repo to see how to exclude this file!
 From the `dockhealth-api` directory:
 
 ```shell
-jest ./examples/js/lifecycle.test.js`
+jest ./examples/js/deprecated.lifecycle.test.js`
 ```
 
 ### Step 6. Run the Webhooks Authorization Example (Optional)

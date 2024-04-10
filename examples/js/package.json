@@ -7,7 +7,9 @@
   "license": "UNLICENSED",
   "main": "index.js",
   "dependencies": {
+    "@aws-sdk/util-dynamodb": "^3.556.0",
     "@jest/globals": "^29.7.0",
+    "@ngrok/ngrok": "^1.2.0",
     "axios": "^0.21.1",
     "crypto-js": "^4.0.0",
     "custom-env": "^2.0.1",
@@ -16,9 +18,9 @@
     "jest": "^26.5.3",
     "lodash": "^4.17.21",
     "nanoid": "^3.1.16",
-    "ngrok": "^4.0.1",
     "superagent": "^6.1.0",
-    "supertest": "^5.0.0"
+    "supertest": "^5.0.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "standard": "^16.0.2"

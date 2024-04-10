@@ -195,6 +195,7 @@ describe('Workflow Decision', () => {
       throw new Error('Task Workflow Template ID from creation step not found')
     }
 
+    // TODO: Update tests to create task list and group as needed (make standalone).
     const payload = {
       taskList: { id: shared.taskListIdentifier },
       taskGroup: { id: shared.taskGroupIdentifier },
