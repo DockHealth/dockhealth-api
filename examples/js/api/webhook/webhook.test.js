@@ -111,8 +111,6 @@ test('Authorize Webhook', async () => {
         expect(res.body.verified).toBeTruthy()
       })
 
-    events = ['CREATE_ORGANIZATION', 'UPDATE_ORGANIZATION']
-
     // Updating the webhook will require re-validation.
     await request
       .put('/api/v1/webhook/' + id)
