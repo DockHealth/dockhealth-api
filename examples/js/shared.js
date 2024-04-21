@@ -23,18 +23,20 @@ const apiUrl = process.env.API_URL
 const apiKey = process.env.API_KEY
 const clientId = process.env.CLIENT_ID
 const clientSecret = process.env.CLIENT_SECRET
-const domain = process.env.DOMAIN
-const email = process.env.EMAIL
-
-const taskListIdentifier = process.env.TASK_LIST_IDENTIFIER
-const organizationIdentifier = process.env.ORGANIZATION_IDENTIFIER
 const userIdentifier = process.env.USER_IDENTIFIER
+const organizationIdentifier = process.env.ORGANIZATION_IDENTIFIER
+
+// Needed for workflow tests.
+// TODO: Update tests to create task list and group as needed (make standalone).
+const taskListIdentifier = process.env.TASK_LIST_IDENTIFIER
 const taskGroupIdentifier = process.env.TASK_GROUP_IDENTIFIER
 
 // NOTE: Use ngrok to proxy calls from a well-known domain and port to localhost.
 // Set CALLBACK_LOCAL_PORT in your environment to the port of
 // your express instance setup in shared.js (default is 3000).
 // See: https://ngrok.com
+// Use an existing proxy by setting CALLBACK_URL.
+const callbackUrl = process.env.CALLBACK_URL
 const callbackLocalPort = process.env.CALLBACK_LOCAL_PORT
 const ngrokAuthtoken = process.env.NGROK_AUTHTOKEN
 
@@ -65,32 +67,27 @@ const checkEnv = () => {
   if (!clientSecret) {
     throw new Error('CLIENT_SECRET is undefined!')
   }
-  if (!domain) {
-    throw new Error('DOMAIN is undefined!')
+  if (!userIdentifier) {
+    throw new Error('USER_IDENTIFIER is undefined!')
   }
-  if (!email) {
-    throw new Error('EMAIL is undefined!')
-  }
-  if (!callbackLocalPort) {
-    throw new Error('CALLBACK_LOCAL_PORT is undefined!')
-  }
-  if (!ngrokAuthtoken) {
-    throw new Error('NGROK_AUTHTOKEN is undefined!')
+  if (!organizationIdentifier) {
+    throw new Error('ORGANIZATION_IDENTIFIER is undefined!')
   }
 }
 
 // Start the express.js REST server to respond to a webhook verification challenge.
 const startServer = (secret) => {
-  server = app.listen(callbackLocalPort, () => {
-    console.log(`Webhook callback server listening on ${callbackLocalPort}`)
-    serverSecret = secret
-  })
+  server = app.listen(callbackLocalPort)
+  console.log(`Webhook callback server listening on ${callbackLocalPort}`)
+  serverSecret = secret
 }
 
 // Stop the REST server.
-const stopServer = () => {
+const stopServer = async () => {
   if (server) {
-    server.close()
+    await server.close()
+    await server.closeAllConnections()
+    server = null
   }
   console.log('Webhook callback server stopped')
   serverSecret = null
@@ -184,7 +181,8 @@ app.post('/*', async (req, res) => {
   }
 })
 
-const devHeaders = (token) => {
+// DEPRECATED!
+const deprecatedDevHeaders = (token) => {
   if (!token) {
     throw new Error('Token is undefined!')
   }
@@ -194,7 +192,8 @@ const devHeaders = (token) => {
   return json
 }
 
-const userHeaders = (token, userId) => {
+// DEPRECATED!
+const deprecatedUserHeaders = (token, userId) => {
   if (!token) {
     throw new Error('Token is undefined!')
   }
@@ -227,15 +226,15 @@ const userAndOrgHeaders = (token, userId, organizationId) => {
 }
 
 const generateEmail = () => {
-  return (nanoid(GENERATED_ITEM_LENGTH) + '@' + domain).toLowerCase()
+  return (nanoid(GENERATED_ITEM_LENGTH) + '@' + nanoid(GENERATED_ITEM_LENGTH) + 'com').toLowerCase()
 }
 
 const generateDomain = () => {
-  return (nanoid(GENERATED_ITEM_LENGTH) + '.' + domain).toLowerCase()
+  return (nanoid(GENERATED_ITEM_LENGTH) + '.' + nanoid(GENERATED_ITEM_LENGTH) + '.com').toLowerCase()
 }
 
 const generateMrn = () => {
-  return (nanoid(GENERATED_ITEM_LENGTH) + '-' + domain).toLowerCase()
+  return (nanoid(GENERATED_ITEM_LENGTH) + '-' + nanoid(GENERATED_ITEM_LENGTH) + '.com').toLowerCase()
 }
 
 const generateWebhookIdentifier = () => {
@@ -250,7 +249,7 @@ const getAccessToken = async (scopes) => {
     throw new Error('CLIENT_ID is not set in the environment!')
   }
   if (!clientSecret) {
-    throw new Error('CLIENT_ID is not set in the environment!')
+    throw new Error('CLIENT_SECRET is not set in the environment!')
   }
   if (!scopes || scopes.length === 0) {
     throw new Error('Scopes are not defined!')
@@ -297,12 +296,11 @@ module.exports = {
   HEADER_ORGANIZATION_ID,
   HEADER_USER_ID,
   apiUrl,
+  callbackUrl,
   callbackLocalPort,
   ngrokAuthtoken,
   checkEnv,
-  devHeaders,
-  domain,
-  email,
+  deprecatedDevHeaders,
   generateDomain,
   generateEmail,
   generateMrn,
@@ -312,7 +310,7 @@ module.exports = {
   startServer,
   stopServer,
   userAndOrgHeaders,
-  userHeaders,
+  deprecatedUserHeaders,
   userIdentifier,
   organizationIdentifier,
   taskListIdentifier,

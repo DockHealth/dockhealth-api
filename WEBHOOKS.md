@@ -22,11 +22,11 @@ event ordering, and duplicates.
 
 Developers register and manage webhooks via the Dock Health API as follows:
 
-### `POST /api/v1/developer/webhook` 
+### `POST /api/v1/webhook` 
 
 Creates a webhook.
 
-This endpoint requires the `dockhealth/system.developer.write` scope.
+This endpoint requires the `dockhealth/user.all.write` scope.
 
 Payload: 
 
@@ -72,33 +72,33 @@ See the `Authentication` section for more information about endpoint verificatio
 NOTE: Dock Health will allow more than one webhook to receive a given event. All verified, enabled, webhooks configured
 to receive a given event will receive that event. 
 
-### `PUT /api/v1/developer/webhook/{id}`
+### `PUT /api/v1/webhook/{id}`
 
 Updates the webhook for the specified id.
 
-This endpoint requires the `dockhealth/system.developer.write` scope.
+This endpoint requires the `dockhealth/user.all.write` scope.
 
 All values required to create the webhook MUST ALSO BE SET HERE!
 
 All updates, including enabling/disabling a webhook, will trigger a re-verification of the endpoint!
 
-### `DELETE /api/v1/developer/webhook/{id}` 
+### `DELETE /api/v1/webhook/{id}` 
 
 Deletes the webhook for the specified id.
 
-This endpoint requires the `dockhealth/system.developer.write` scope.
+This endpoint requires the `dockhealth/user.all.write` scope.
 
-### `GET /api/v1/developer/webhook` 
+### `GET /api/v1/webhook` 
 
 Returns all webhooks for a given developer account.
 
-This endpoint requires the `dockhealth/system.developer.read` scope.
+This endpoint requires the `dockhealth/user.all.read` scope.
 
-###	`GET /api/v1/developer/webhook/{id}` 
+###	`GET /api/v1/webhook/{id}` 
 
 Returns the webhook for the specified id.
 
-This endpoint requires the `dockhealth/system.developer.read` scope.
+This endpoint requires the `dockhealth/user.all.read` scope.
 
 ## Webhook Authentication
 
@@ -174,22 +174,22 @@ These requests all require the `dockhealth/system.developer.read` scope.
 
 NOTE: Timestamps must be formatted as ISO 8601 UTC strings (yyyy-MM-ddTHH:mm:ss.SSSZ).
 
-- `GET /api/v1/developer/event` returns all events for the given developer account matching the provided search criteria.
+- `GET /api/v1/event` returns all events for the given developer account matching the provided search criteria.
   - This endpoint requires one of three different query strings:
     - To return a single event: 
-      - `/api/v1/developer/event?organization={organizationIdentifier}&event={eventIdentifier}`
+      - `/api/v1/event?organization={organizationIdentifier}&event={eventIdentifier}`
     - To return a time-based range of events for a given organization:
-        - `/api/v1/developer/event?organization={organizationIdentifier}&startTs={startTs}&endTs={endTs}`
+        - `/api/v1/event?organization={organizationIdentifier}&startTs={startTs}&endTs={endTs}`
     - To return a time-based range of events for a given organization and event type:
-        - `/api/v1/developer/event?organization={organizationIdentifier}&type=ORGANIZATION_UPDATED&startTs={startTs}&endTs={endTs}`
-- `GET /api/v1/developer/event/delivery` returns the event delivery history matching the provided search criteria.
+        - `/api/v1/event?organization={organizationIdentifier}&type=ORGANIZATION_UPDATED&startTs={startTs}&endTs={endTs}`
+- `GET /api/v1/event/delivery` returns the event delivery history matching the provided search criteria.
   - This endpoint requires one of three different query strings:
     - To return the event delivery history for single event:
-        - `/api/v1/developer/event/delivery?organization={organizationIdentifier}&event={eventIdentifier}`
+        - `/api/v1/event/delivery?organization={organizationIdentifier}&event={eventIdentifier}`
     - To return a time-based range of event delivery history for a given organization:
-        - `/api/v1/developer/event?organization={organizationIdentifier}&startTs={startTs}&endTs={endTs}`
+        - `/api/v1/event?organization={organizationIdentifier}&startTs={startTs}&endTs={endTs}`
     - To return a time-based range of event delivery history for a given organization and event type:
-        - `/api/v1/developer/event?organization={organizationIdentifier}&type=ORGANIZATION_UPDATED&startTs={startTs}&endTs={endTs}`
+        - `/api/v1/event?organization={organizationIdentifier}&type=ORGANIZATION_UPDATED&startTs={startTs}&endTs={endTs}`
 
 ## Event Payload
 
