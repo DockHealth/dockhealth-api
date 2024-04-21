@@ -6,7 +6,7 @@ instructions and examples to get you up and running with Dock Health.
 The Dock Health API follows standard REST conventions. While the examples shown here use cURL, the API is accessible 
 using any convenient HTTPS client library in the programming language of your choice.
 
-## Step 1: Create an Account
+## Create an Account
 
 Integrating Dock Health into your application begins with the creation of your initial Dock Health user account at:
 <https://app.dock.health>. Creation of the account will require a **business email address**, **password**, **mobile
@@ -21,7 +21,7 @@ Health. For this reason, we recommend that you use your organization's domain na
 
 Once this initial account is set up, you can use the API to create additional organizations and users.
 
-## Step 2: Request Your API Keys From Dock Health
+## Request Your API Keys From Dock Health
 
 Dock Health authenticates your requests using your developer API keys, which consist of an `api_key`, `client_id`,
 `client_secret`, `organization_identifier`, and `user_identifier`. 
@@ -34,7 +34,7 @@ commit them to any source code repositories. Dock Health recommends creating `AP
 `ORGANIZATION_IDENTIFIER`, and `USER_IDENTIFIER` environment variables in your environments and referencing those 
 environment variables in your code.
 
-## Step 3: Setup Your Environment
+## Setup Your Environment
 
 Dock Health supports two environments. Use the `DEVELOPMENT` environment to test your code and the `PRODUCTION` 
 environment for your live application. To make changing environments easier, we recommend creating two additional
@@ -47,7 +47,71 @@ environment variables:
   - DEVELOPMENT: <https://partner-api-dev.dockhealth.app>
   - PRODUCTION: <https://partner-api.dock.health>
 
-## Step 4: Request an Authorization Token
+## Install Dependencies
+
+- Install Node.js: <https://nodejs.org>
+- Install the Jest test framework (<https://jestjs.io>) as a global Node dependency: `npm install --global jest`
+- (Webhooks Only) Install ngrok: <https://ngrok.com>
+- Clone the Dock Health API repository to your development environment: `git clone git@github.com:DockHealth/dockhealth-api.git`
+- Run `npm install` to install the dependencies listed in `package.json`.
+
+## Setup Your Environment Variables
+
+The examples require the following environment variables to be set:
+
+```shell
+AUTH_URL = https://dock-health-dev.auth.us-east-1.amazoncognito.com
+API_URL = https://partner-api-dev.dockhealth.app
+API_KEY = "The API_KEY you received from Dock Health."
+CLIENT_ID = "The CLIENT_ID you received from Dock Health."
+CLIENT_SECRET = "The CLIENT_SECRET you received from Dock Health."
+ORGANIZATION_IDENTIFIER = The ORGANIZATION_IDENTIFIER you received from Dock Health.
+USER_IDENTIFIER = The USER_IDENTIFIER you received from Dock Health.
+CALLBACK_URL = "(Webhooks Only) If NOT USING NGROK, a proxy URL to proxy webhook verification calls back to your local server."
+CALLBACK_LOCAL_PORT = "(Webhooks Only) The port on which your local express server is running (defaults to 3000)."
+NGROK_AUTHTOKEN = (Webhooks Only) If USING NGROK, your ngrok auth token.
+```
+
+You can set the env vars directly in your shell, or you can create an environment file on disk to contain those values. 
+If the env file is present, the examples will read the vars from the file. If the file is not present, the examples
+will read the vars from the environment.
+
+There is a sample env file, `.env.sample` included with the examples. To use it an env file, copy the sample to a new 
+file, `.env.test` and supply the missing values.
+
+Make sure to add `.env.test` to your `.gitignore` to prevent pushing them to your remotes! See the`.gitignore` file 
+in this repo to see how to exclude this file!
+
+## Run the API Lifecycle Example
+
+From the `dockhealth-api` directory, run:
+
+```shell
+jest ./examples/js/api/lifecycle.test.js`
+```
+
+## Run the Webhooks Authorization Example (Optional)
+
+The webhook example requires additional setup, and an overview of the authorization process.
+Please see `WEBHOOKS.md` for more information on the webhook concepts.
+
+Webhook authorization requires the developer to host a public-facing REST endpoint at the URL provided when 
+setting up the webhook. Dock Health will call that endpoint with an authentication challenge, and the endpoint 
+must return the properly-hashed and signed response.
+
+In order to facilitate running the example on localhost, the example code sets up a one-shot express.js REST server
+listening on `localhost:3000`. That port can be changed by setting `CALLBACK_LOCAL_PORT` in your environment.
+
+The example shows how to construct the response to the authentication challenge. 
+See the code in `shared.js` for an example of constructing the challenge response.
+
+To make that endpoint available publicly, we recommend that you create a free ngrok account: <https://ngrok.com>.
+ngrok is a service that proxies a publicly-routable URL to an endpoint running locally in your environment.
+
+Alternatively if you are already running a proxy to your local machine, set `CALLBACK_URL` and `CALLBACK_PORT`
+to specify that remote url and local proxy port.
+
+## Requesting an Authorization Token
 
 Each request you make to the Dock Health API requires you to supply an Authorization token. The request must contain
 three elements:
@@ -87,7 +151,7 @@ A successful authorization request will return an `access_token`, which must be 
 access token supplied will expire after `expires_in` seconds, after which, you must request a new token. Requests 
 made with same access token will be limited to the scopes specified when requesting the token. 
 
-## Step 4: Make Your First Dock Health API Request
+## The Structure of an API Request
 
 You are now able to make an authenticated API request. All API requests require at least the following headers:
 
@@ -125,7 +189,7 @@ Example Response:
 ]
 ```
 
-## Step 5: Next Steps
+## Next Steps
 
 Congratulations! You should now be able to make full use of the Dock Health API in your own applications. 
 
