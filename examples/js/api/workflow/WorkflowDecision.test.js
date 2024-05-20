@@ -18,6 +18,9 @@ describe('Workflow Decision', () => {
   let taskOutcomeId2
   let taskOutcomeIdentifier
 
+  let taskListId
+  let taskGroupId
+
   beforeAll(async () => {
     const userId = shared.userIdentifier
     const orgId = shared.organizationIdentifier
@@ -32,6 +35,38 @@ describe('Workflow Decision', () => {
 
   afterEach(() => {
     console.log('Test completed.')
+  })
+
+  test('Should create a new taskList', async () => {
+    const payload = {
+      listName: `Test Task List ${nanoid()}`, listDescription: `Test Task List Description ${nanoid()}`
+    }
+
+    const response = await request
+      .post('/api/v1/list')
+      .set(header)
+      .send(payload)
+      .expect(200)
+
+    expect(response.body.listName).toBe(payload.listName)
+    taskListId = response.body.id
+    console.log(`Created Task List with ID: ${taskListId}`)
+  })
+
+  test('Should taskGroup', async () => {
+    const payload = {
+      groupName: `Test Task Group ${nanoid()}`, taskList: { id: taskListId }
+    }
+
+    const response = await request
+      .post('/api/v1/task/group')
+      .set(header)
+      .send(payload)
+      .expect(200)
+
+    expect(response.body.groupName).toBe(payload.groupName)
+    taskGroupId = response.body.id
+    console.log(`Created Task Group with ID: ${taskGroupId}`)
   })
 
   test('Should successfully create a workflow template', async () => {
@@ -195,10 +230,9 @@ describe('Workflow Decision', () => {
       throw new Error('Task Workflow Template ID from creation step not found')
     }
 
-    // TODO: Update tests to create task list and group as needed (make standalone).
     const payload = {
-      taskList: { id: shared.taskListIdentifier },
-      taskGroup: { id: shared.taskGroupIdentifier },
+      taskList: { id: taskListId },
+      taskGroup: { id: taskGroupId },
       taskWorkflowTemplate: { id: createdTaskWorkflowTemplateId }
     }
 
@@ -208,8 +242,8 @@ describe('Workflow Decision', () => {
       .send(payload)
       .expect(200)
 
-    expect(response.body.taskList.id).toBe(shared.taskListIdentifier)
-    expect(response.body.taskGroup.id).toBe(shared.taskGroupIdentifier)
+    expect(response.body.taskList.id).toBe(taskListId)
+    expect(response.body.taskGroup.id).toBe(taskGroupId)
 
     // eslint-disable-next-line no-unused-vars
     const deployedWorkflowId = response.body.id
