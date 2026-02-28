@@ -60,7 +60,7 @@ environment variables:
 The examples require the following environment variables to be set:
 
 ```shell
-AUTH_URL = https://dock-health-dev.auth.us-east-1.amazoncognito.com
+AUTH_URL = https://partner-auth-dev.dockhealth.app
 API_URL = https://partner-api-dev.dockhealth.app
 API_KEY = "The API_KEY you received from Dock Health."
 CLIENT_ID = "The CLIENT_ID you received from Dock Health."
@@ -164,7 +164,6 @@ each endpoint. The Dock Health API reference is available in three formats - Ope
 
 - OpenAPI: <https://partner-api-dev.dockhealth.app/api-docs>
 - Redoc: <https://partner-api-dev.dockhealth.app/api-docs/redoc>
-- Swagger: <https://partner-api-dev.dockhealth.app/api-docs/swagger>
 
 Example Request:
 
@@ -200,6 +199,11 @@ GitHub API repository (this repo): <https://github.com/DockHealth/dockhealth-api
 
 Please see the examples section of this repo for full working examples covering the full onboarding lifecycle!
  
+Our API reference is available here:
+
+- DEV: <https://partner-api-dev.dockhealth.app/api-docs/redoc>
+- PROD: <https://partner-api.dock.health/api-docs/redoc>
+
 Finally, if you have any trouble, please don't hesitate to reach out for help. Either:
 
 1. Create an issue in this repo: <https://github.com/DockHealth/dockhealth-api/issues>.

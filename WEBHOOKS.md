@@ -422,12 +422,11 @@ GitHub API repository (this repo): <https://github.com/DockHealth/dockhealth-api
 
 Please see the examples section of this repo for full working examples covering the full webhook lifecycle!
 
-The Dock Health API reference is available in three formats - OpenAPI (yaml), Redoc, and Swagger:
+Our API reference is available here:
 
-- OpenAPI: <https://partner-api-dev.dockhealth.app/api-docs>
-- Redoc: <https://partner-api-dev.dockhealth.app/api-docs/redoc>
-- Swagger: <https://partner-api-dev.dockhealth.app/api-docs/swagger>
-  
+- DEV: <https://partner-api-dev.dockhealth.app/api-docs/redoc>
+- PROD: <https://partner-api.dock.health/api-docs/redoc>
+ 
 Finally, if you have any trouble, please don't hesitate to reach out for help. Either:
 
 1. Create an issue in this repo: <https://github.com/DockHealth/dockhealth-api/issues>.
