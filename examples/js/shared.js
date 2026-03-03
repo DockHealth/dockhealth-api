@@ -94,7 +94,7 @@ const stopServer = async () => {
 }
 
 // Listen for a webhook verification challenge and return a signed response.
-app.get('/*', async (req, res) => {
+app.get('/', async (req, res) => {
   if (!req.query.message) {
     console.log('Webhook called with empty message!')
     return res.status(400)
@@ -110,7 +110,7 @@ app.get('/*', async (req, res) => {
   return res.status(200).send({ digest: signed })
 })
 
-app.post('/*', async (req, res) => {
+app.post('/', async (req, res) => {
   try {
     if (!req.headers) {
       console.debug('Webhook called with empty headers!')
